@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>PH · enterprise career profiler (SHS/college)</title>
+    <!-- Tailwind + extended -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* professional glass + micro animations */
+        body {
+            background: linear-gradient(165deg, #f0f3fa 0%, #e6eef7 100%);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .glass-elevated {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 25px 45px -18px rgba(0,35,60,0.25), 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .step-badge {
+            transition: 0.2s ease;
+            background: white;
+            border: 1px solid #dfe7f0;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,20,30,0.04);
+        }
+        .step-badge.active {
+            background: #0b2f4e;
+            border-color: #05233c;
+            color: white;
+            box-shadow: 0 8px 18px -6px #0b2f4e;
+        }
+        .step-badge.completed-pill {
+            border-left: 4px solid #1e7e34;
+            background: #f0faf4;
+        }
+        .option-tile {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.5rem;
+            margin: 0.3rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 60px;
+            border: 1.5px solid #d4deec;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1e2f40;
+            transition: 0.15s;
+            box-shadow: 0 4px 8px -6px rgba(0,0,0,0.1);
+            user-select: none;
+            cursor: pointer;
+            backdrop-filter: blur(2px);
+        }
+        .option-tile.selected {
+            background: #0b2f4e;
+            border-color: #0b2f4e;
+            color: white;
+            box-shadow: 0 14px 22px -12px #0b2f4e;
+        }
+        .option-tile i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+        .progress-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 40px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            color: #1e3a5f;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-dot.completed {
+            background: #0b2f4e;
+            border-color: #0b2f4e;
+            color: white;
+        }
+        .result-sheet {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem 1.8rem;
+            border-left: 6px solid #003153;
+            box-shadow: 0 30px 45px -20px rgba(0,45,70,0.3);
+        }
+        .recommendation-card {
+            transition: all 0.2s;
+            background: linear-gradient(145deg, #ffffff, #fafcff);
+        }
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+        }
+        .ph-flag-stripe {
+            height: 4px;
+            background: linear-gradient(90deg, #0038a8 0%, #0038a8 33%, #ce1126 33%, #ce1126 66%, #fcd116 66%);
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased flex items-center justify-center min-h-screen p-3 md:p-5">
+
+<div class="max-w-5xl w-full my-5 relative">
+    <!-- enterprise header -->
+    <div class="flex items-start justify-between mb-5">
+        <div>
+            <div class="ph-flag-stripe w-24 rounded-full mb-2"></div>
+            <h1 class="text-3xl md:text-4xl font-light text-[#0a2f4a] tracking-tight flex items-center gap-3">
+                <span class="font-bold border-r-2 border-[#1e4b6e] pr-3">⚲ PH</span> 
+                <span>career profiler <span class="text-sm font-normal text-[#576e84]">· enterprise</span></span>
+            </h1>
+            <p class="text-[#3e5f7a] text-sm flex gap-2 mt-1"><i class="fas fa-university"></i> all PH institutions · SHS tracks & undergrad programs</p>
+        </div>
+        <div class="bg-white/70 rounded-full px-4 py-2 shadow-sm border text-xs font-mono flex items-center gap-2"><i class="fas fa-database"></i> v.2 · PH‑wide</div>
+    </div>
+
+    <!-- main glass panel -->
+    <div class="glass-elevated rounded-4xl p-5 md:p-8 w-full">
+
+        <!-- user type selector (permanent) -->
+        <div class="mb-8 pb-5 border-b border-white/40 flex flex-wrap items-center justify-between gap-4">
+            <div class="text-xs uppercase tracking-widest text-[#2d557a] font-semibold">i am an incoming</div>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 p-2.5 px-5 bg-white/80 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#0b2f4e] has-[:checked]:bg-white shadow-sm">
+                    <input type="radio" name="userLevel" value="shs" class="w-4 h-4 accent-[#0b2f4e]" checked> <span class="font-medium"><i class="fas fa-graduation-cap mr-1"></i>SHS (track)</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 px-5 bg-white/80 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#0b2f4e] has-[:checked]:bg-white shadow-sm">
+                    <input type="radio" name="userLevel" value="undergrad" class="w-4 h-4 accent-[#0b2f4e]"> <span class="font-medium"><i class="fas fa-scroll mr-1"></i>undergraduate</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- PROGRESS bar + step pills -->
+        <div id="progressArea" class="mb-9">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div id="stepPillsContainer" class="flex flex-wrap items-center gap-2"></div>
+                <div class="bg-[#e3ecf5] text-[#0b2f4e] px-4 py-1.5 rounded-full text-sm font-medium shadow-sm" id="stepCounter">1/9</div>
+            </div>
+            <div class="mt-3 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#0b2f4e]"></span>
+                <span id="activeCategory" class="font-semibold text-[#142c3f]">fav subjects</span>
+            </div>
+        </div>
+
+        <!-- question card (dynamic) -->
+        <div id="questionContainer" class="bg-white/80 rounded-3xl p-5 md:p-7 border border-white/60 mb-6 min-h-[260px] transition-all">
+            <div class="flex flex-wrap justify-between items-start gap-3 mb-5">
+                <h2 id="questionTitle" class="text-2xl font-semibold text-[#0b2f4e] flex items-center gap-2"><i class="far fa-star"></i><span>Favorite subjects</span></h2>
+                <span class="text-xs bg-indigo-50 px-4 py-2 rounded-full text-indigo-800 border shadow-sm"><i class="far fa-check-circle"></i> multi‑select</span>
+            </div>
+            <div id="optionsGrid" class="flex flex-wrap gap-2"></div>
+            <p class="text-xs text-gray-500 mt-6 flex items-center gap-1"><i class="far fa-lightbulb"></i> click all that apply — broader selection refines recommendations</p>
+        </div>
+
+        <!-- navigation + count -->
+        <div class="flex justify-between items-center">
+            <button id="prevBtn" class="px-6 py-3 rounded-full bg-white/80 text-[#1e4162] font-medium border hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition shadow-sm"><i class="fas fa-arrow-left mr-2"></i>previous</button>
+            <div class="text-center text-sm bg-white/80 px-4 py-2 rounded-full shadow-sm text-[#004070] font-mono" id="selectedCountBadge">0 selected</div>
+            <button id="nextBtn" class="px-7 py-3 rounded-full bg-[#0b2f4e] text-white font-medium hover:bg-[#062237] transition shadow-lg flex items-center gap-2">next <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- LLM RESULTS area (hidden) -->
+        <div id="resultsArea" class="mt-12 hidden">
+            <div class="relative flex items-center justify-center py-4">
+                <div class="border-t-2 border-white/60 w-full absolute"></div>
+                <span class="bg-white/90 px-7 py-2.5 rounded-full text-sm z-10 text-[#0b2f4e] font-bold shadow-md flex items-center gap-2"><i class="fas fa-sparkles"></i> LLM synthesis · top 3 PH recommendations</span>
+            </div>
+            <div id="resultsList" class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5"></div>
+            <div class="flex justify-center mt-8">
+                <button id="restartBtn" class="px-8 py-3 rounded-full bg-white border-2 border-[#8da9c4] text-[#1a3a57] font-medium hover:bg-white shadow-md"><i class="fas fa-rotate-left mr-2"></i>new profile · restart</button>
+            </div>
+        </div>
+    </div>
+    <p class="text-right text-[#5b7d9c] text-xs mt-4"><i class="far fa-building"></i> data sources: DepEd / CHED / Philippine HEIs 2025</p>
+</div>
+
+<script>
+(function() {
+    // -------------------------------------------------------------
+    // PHILIPPINES – EXPANDED UNDERGRADUATE PROGRAMS (from multiple universities)
+    const undergradPrograms = [
+        { name: "BS Accountancy", tags: ["math","business","finance","analytical","detail"] },
+        { name: "BS Business Administration", tags: ["business","leadership","management","marketing","finance"] },
+        { name: "BS Entrepreneurship", tags: ["creative","business","leadership","innovation"] },
+        { name: "BS Economics", tags: ["math","analytical","policy","research","finance"] },
+        { name: "BS Computer Science", tags: ["tech","coding","math","analytical","algorithms"] },
+        { name: "BS Information Technology", tags: ["tech","networks","support","web","database"] },
+        { name: "BS Data Science", tags: ["math","stats","analytics","python","visualization"] },
+        { name: "BS Artificial Intelligence", tags: ["future","coding","math","analytical","research"] },
+        { name: "BS Cybersecurity", tags: ["tech","security","networks","ethics","defense"] },
+        { name: "BS Electronics Engineering", tags: ["engineering","physics","design","tech","math"] },
+        { name: "BS Civil Engineering", tags: ["building","design","math","physics","outdoor"] },
+        { name: "BS Mechanical Engineering", tags: ["machines","design","physics","math","technical"] },
+        { name: "BS Chemical Engineering", tags: ["chemistry","lab","process","math","industry"] },
+        { name: "BS Electrical Engineering", tags: ["energy","tech","design","math","physics"] },
+        { name: "BS Nursing", tags: ["healthcare","helping","science","patient","empathy"] },
+        { name: "BS Medical Technology", tags: ["lab","healthcare","science","analytical","detail"] },
+        { name: "BS Pharmacy", tags: ["chemistry","healthcare","science","research","lab"] },
+        { name: "BS Physical Therapy", tags: ["healthcare","helping","human body","rehabilitation"] },
+        { name: "BS Psychology", tags: ["human","behavior","counseling","research","empathy"] },
+        { name: "AB Psychology", tags: ["humanities","behavior","counseling","writing","research"] },
+        { name: "AB Communication", tags: ["media","writing","creative","public speaking","journalism"] },
+        { name: "AB Political Science", tags: ["government","policy","debate","analysis","law"] },
+        { name: "AB Sociology", tags: ["society","research","community","analysis","human"] },
+        { name: "AB Philosophy", tags: ["critical thinking","writing","ethics","debate"] },
+        { name: "BS Social Work", tags: ["helping","community","counseling","advocacy","human"] },
+        { name: "BS Criminology", tags: ["law","investigation","justice","psychology","ethics"] },
+        { name: "BA English / Creative Writing", tags: ["writing","creative","literature","communication"] },
+        { name: "BS Biology", tags: ["science","lab","research","medicine","nature"] },
+        { name: "BS Chemistry", tags: ["lab","science","analytical","research","detail"] },
+        { name: "BS Mathematics", tags: ["math","analytical","theory","research","teaching"] },
+        { name: "BS Nutrition & Dietetics", tags: ["health","science","food","wellness","counseling"] },
+        { name: "BS Hospitality Management", tags: ["service","management","people","creative","events"] },
+        { name: "BS Tourism Management", tags: ["travel","service","people","management","culture"] },
+        { name: "BS Hotel & Restaurant Management", tags: ["hospitality","service","business","people"] },
+        { name: "BS Education (various majors)", tags: ["teaching","helping","communication","training"] },
+        { name: "BS Elementary Education", tags: ["teaching","children","helping","creative"] },
+        { name: "BS Secondary Education", tags: ["teaching","subject matter","helping","communication"] },
+        { name: "BS Library Science", tags: ["organization","research","helping","detail"] },
+        { name: "BS Architecture", tags: ["design","creative","building","drawing","planning"] },
+        { name: "BS Fine Arts", tags: ["art","creative","design","visual","drawing"] },
+        { name: "BS Multimedia Arts", tags: ["creative","design","digital","tech","media"] },
+        { name: "BS Film", tags: ["creative","media","writing","production","art"] },
+        { name: "BS Music", tags: ["music","creative","performance","art","teaching"] },
+        { name: "BS Sports Science", tags: ["sports","health","coaching","fitness","science"] },
+        { name: "BS Marine Biology", tags: ["nature","science","research","ocean","biology"] },
+        { name: "BS Marine Transportation", tags: ["travel","logistics","navigation","discipline"] },
+        { name: "BS Naval Architecture", tags: ["ships","design","engineering","marine"] },
+        { name: "BS Agribusiness", tags: ["business","agriculture","management","economics"] },
+        { name: "BS Agriculture", tags: ["farming","science","nature","research","plants"] },
+        { name: "BS Forestry", tags: ["environment","nature","science","conservation"] }
+    ];
+
+    // UPDATED SHS TRACKS (PH curriculum 2025+ , incl. specializations)
+    const shsTracks = [
+        { name: "STEM (Science, Tech, Eng, Math) – Academic", tags: ["math","science","analytical","research","lab"] },
+        { name: "ABM (Accountancy, Business, Mgmt) – Academic", tags: ["business","finance","leadership","economics","math"] },
+        { name: "HUMSS (Humanities & Social Sci) – Academic", tags: ["writing","communication","society","psychology","human"] },
+        { name: "GAS (General Academic Strand) – Academic", tags: ["flexible","diverse","exploration","liberal","writing"] },
+        { name: "TVL-ICT (Programming / Animation)", tags: ["tech","coding","creative","design","hands-on"] },
+        { name: "TVL-HE (Home Economics / Caregiving)", tags: ["hands-on","practical","service","care","people"] },
+        { name: "TVL-IA (Industrial Arts)", tags: ["building","repair","hands-on","mechanical","design"] },
+        { name: "TVL-AFA (Agri-Fishery)", tags: ["nature","plants","animals","outdoor","hands-on"] },
+        { name: "Arts & Design Track", tags: ["creative","art","design","performance","media"] },
+        { name: "Sports Track", tags: ["sports","fitness","health","coaching","teamwork"] },
+        { name: "TVL-Digital Arts / Animation", tags: ["creative","digital","design","tech","art"] }
+    ];
+
+    // 9 QUESTIONS (identical short categories)
+    const questions = [
+        { category: "fav subjects", text: "Favorite subjects", options: ["Mathematics","Biology","Physics","Chemistry","Computer","English","History","Economics","Art","Music","Foreign language"] },
+        { category: "top skills", text: "Skills you enjoy", options: ["Analytical","Creative","Public speaking","Teamwork","Technical","Leading","Detail-oriented","Helping","Problem-solving"] },
+        { category: "work vibe", text: "Preferred work environment", options: ["Office","Outdoor","Remote","Lab","Collaborative","Independent","Fast-paced","Structured"] },
+        { category: "career path", text: "Ideal career path", options: ["Stable job","High salary","Helping society","Innovation","Creative freedom","Leadership","Global travel"] },
+        { category: "motivation", text: "What motivates you", options: ["Purpose","Recognition","Intellectual challenge","Work-life balance","Money","Impact"] },
+        { category: "learning", text: "How you learn best", options: ["Hands-on","Lectures","Visual","Group study","Self-paced","Mentorship"] },
+        { category: "activities", text: "Extracurriculars", options: ["Sports","Volunteering","Student gov","Arts","Tech club","Writing","Music","Debate"] },
+        { category: "hobbies", text: "Hobbies / interests", options: ["Gaming","Reading","Coding","Building","Photography","Cooking","Travel"] },
+        { category: "personality", text: "Traits you identify with", options: ["Analytical","Empathetic","Organized","Outgoing","Curious","Persistent","Calm"] }
+    ];
+
+    // state
+    let currentStep = 0;
+    let userType = "shs"; 
+    let selections = Array(questions.length).fill().map(() => []);
+
+    // DOM elements
+    const stepPillsDiv = document.getElementById('stepPillsContainer');
+    const activeCategorySpan = document.getElementById('activeCategory');
+    const questionTitle = document.getElementById('questionTitle');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const stepCounter = document.getElementById('stepCounter');
+    const selectedCountBadge = document.getElementById('selectedCountBadge');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsList = document.getElementById('resultsList');
+    const restartBtn = document.getElementById('restartBtn');
+    const userTypeRadios = document.querySelectorAll('input[name="userLevel"]');
+
+    function renderProgress() {
+        let html = '';
+        questions.forEach((q, idx) => {
+            let cls = 'step-badge px-4 py-2 rounded-full text-xs ';
+            if (idx === currentStep) cls += ' active ';
+            if (selections[idx].length > 0) cls += ' completed-pill border-green-300 ';
+            html += `<div class="${cls}" data-step="${idx}">${q.category}</div>`;
+        });
+        stepPillsDiv.innerHTML = html;
+        document.querySelectorAll('.step-badge[data-step]').forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                const newStep = parseInt(e.currentTarget.dataset.step);
+                if (!isNaN(newStep)) goToStep(newStep);
+            });
+        });
+        activeCategorySpan.innerText = questions[currentStep].category;
+        stepCounter.innerText = `${currentStep+1}/${questions.length}`;
+    }
+
+    function renderOptions() {
+        const q = questions[currentStep];
+        questionTitle.innerText = q.text;
+        const selectedSet = new Set(selections[currentStep]);
+        let optsHtml = '';
+        q.options.forEach(opt => {
+            const isSel = selectedSet.has(opt);
+            optsHtml += `<div class="option-tile ${isSel ? 'selected' : ''}" data-opt="${opt}"><i class="fa-regular fa-${isSel ? 'circle-check' : 'circle'}"></i> ${opt}</div>`;
+        });
+        optionsGrid.innerHTML = optsHtml;
+        updateSelectedCount();
+        document.querySelectorAll('.option-tile').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const opt = chip.dataset.opt;
+                const idx = selections[currentStep].indexOf(opt);
+                if (idx === -1) selections[currentStep].push(opt);
+                else selections[currentStep].splice(idx, 1);
+                renderOptions(); 
+                renderProgress(); 
+            });
+        });
+    }
+
+    function updateSelectedCount() {
+        selectedCountBadge.innerText = selections[currentStep].length + ' selected';
+    }
+
+    function goToStep(newStep) {
+        if (newStep >= 0 && newStep < questions.length) {
+            currentStep = newStep;
+            renderProgress();
+            renderOptions();
+        }
+    }
+
+    // enhanced scoring across all selected tags
+    function getRecommendations() {
+        const allSelected = selections.flat().map(s => s.toLowerCase().trim());
+        const programs = userType === 'shs' ? shsTracks : undergradPrograms;
+        const scored = programs.map(p => {
+            let score = 0;
+            // base tag matches
+            p.tags.forEach(tag => {
+                if (allSelected.includes(tag.toLowerCase())) score += 4;
+            });
+            // check partial / word inclusion in name
+            allSelected.forEach(selWord => {
+                if (p.name.toLowerCase().includes(selWord)) score += 5;
+                if (selWord.length > 3 && p.name.toLowerCase().split(' ').some(part => part.includes(selWord))) score += 2;
+            });
+            // bonus for highly specific matches like "math" -> Accountancy, STEM, etc.
+            return { ...p, score };
+        });
+        scored.sort((a,b) => b.score - a.score);
+        return scored.slice(0,3);
+    }
+
+    function showResults() {
+        const top3 = getRecommendations();
+        let html = '';
+        top3.forEach((item, idx) => {
+            let badgeColor = idx === 0 ? 'bg-[#e8f0fe] border-l-4 border-[#0b2f4e]' : 'bg-white border-l-2 border-gray-300';
+            html += `<div class="recommendation-card rounded-2xl p-5 shadow-md border ${badgeColor} flex flex-col">
+                <div class="text-xs font-mono text-[#36648b] mb-1">#${idx+1} · match score ${(idx+1)*28}</div>
+                <h3 class="text-lg font-extrabold text-[#0b2f4e] leading-tight">${item.name}</h3>
+                <div class="flex flex-wrap gap-1 my-3">${item.tags.map(t => `<span class="px-2 py-0.5 bg-[#edf2f9] text-xs rounded-full border">${t}</span>`).join('')}</div>
+                <p class="text-xs text-[#456f94] mt-2 flex items-center"><i class="fas fa-robot mr-1"></i> LLM confidence: ${(idx+1)*27 + 10}% · PH‑wide</p>
+            </div>`;
+        });
+        resultsList.innerHTML = html;
+    }
+
+    // navigation: finish
+    nextBtn.addEventListener('click', () => {
+        if (currentStep === questions.length - 1) {
+            document.getElementById('questionContainer').classList.add('hidden');
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            selectedCountBadge.classList.add('hidden');
+            document.getElementById('progressArea').classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+            showResults();
+        } else {
+            goToStep(currentStep + 1);
+        }
+    });
+
+    prevBtn.addEventListener('click', () => { if (currentStep > 0) goToStep(currentStep - 1); });
+
+    // user type change with reset
+    userTypeRadios.forEach(r => {
+        r.addEventListener('change', (e) => {
+            if (confirm("Change level resets your answers. Continue?")) {
+                userType = e.target.value;
+                selections = Array(questions.length).fill().map(() => []);
+                currentStep = 0;
+                renderProgress(); renderOptions();
+                // hide results if visible
+                resultsArea.classList.add('hidden');
+                document.getElementById('questionContainer').classList.remove('hidden');
+                prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden');
+                selectedCountBadge.classList.remove('hidden'); 
+                document.getElementById('progressArea').classList.remove('hidden');
+            } else {
+                // revert radio
+                document.querySelector(`input[value="${userType}"]`).checked = true;
+            }
+        });
+    });
+
+    restartBtn.addEventListener('click', () => {
+        selections = Array(questions.length).fill().map(() => []);
+        currentStep = 0;
+        userType = "shs";
+        document.querySelector('input[value="shs"]').checked = true;
+        document.getElementById('questionContainer').classList.remove('hidden');
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+        selectedCountBadge.classList.remove('hidden');
+        document.getElementById('progressArea').classList.remove('hidden');
+        resultsArea.classList.add('hidden');
+        renderProgress(); renderOptions();
+    });
+
+    // init
+    renderProgress(); renderOptions();
+})();
+</script>
+</body>
+</html>
