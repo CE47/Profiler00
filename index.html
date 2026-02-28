@@ -189,7 +189,7 @@
 <script>
 (function() {
     // ------------------------------------------------------------------
-    // 1. AMA PROGRAM DATA (from official pages [1][3][5])
+    // 1. AMA PROGRAM DATA (from official pages)
     const undergradPrograms = [
         { name: "BS Artificial Intelligence", category: "AI", tags: ["tech","math","analytical","future","coding"] },
         { name: "BS Information Technology", category: "IT", tags: ["tech","networks","support","web","database"] },
@@ -315,22 +315,20 @@
         }
     }
 
-    // recommendation engine (very basic tag overlap)
+    // recommendation engine (tag overlap simulation)
     function getRecommendations() {
         // flatten all selected tags across questions
         const allSelected = selections.flat().map(s => s.toLowerCase());
-        // also use for simple mapping
         const programs = userType === 'shs' ? shsTracks : undergradPrograms;
         const scored = programs.map(p => {
             let score = 0;
             p.tags.forEach(tag => {
                 if (allSelected.includes(tag.toLowerCase())) score += 2;
-                // also check if program name / tags partially match any selected word
             });
             // extra: some option words directly match program name
             allSelected.forEach(sel => {
                 if (p.name.toLowerCase().includes(sel)) score += 3;
-                if (p.category.toLowerCase().includes(sel)) score += 2;
+                if (p.category && p.category.toLowerCase().includes(sel)) score += 2;
             });
             return { ...p, score };
         });
@@ -342,7 +340,7 @@
     function showResults() {
         const top3 = getRecommendations();
         let html = '';
-        top3((item, idx) => {
+        top3.forEach((item, idx) => {
             let gradient = 'from-blue-50 to-indigo-50';
             if (idx===0) gradient = 'from-[#e2ecfe] to-[#dae6f5]';
             else if (idx===1) gradient = 'from-white to-slate-50';
@@ -368,7 +366,7 @@
             selectedCountBadge.classList.add('hidden');
             document.getElementById('progressArea').classList.add('hidden');
             resultsArea.classList.remove('hidden');
-            showResults();
+            showResults();  // now correctly iterates with forEach
         } else {
             goToStep(currentStep + 1);
         }
@@ -381,9 +379,8 @@
     // user type change
     userTypeRadios.forEach(r => {
         r.addEventListener('change', (e) => {
-            userType = e.target.value;
-            // reset all selections (optional fresh start)
             if (confirm("Change level will reset your answers. OK?")) {
+                userType = e.target.value;
                 selections = Array(questions.length).fill().map(() => []);
                 currentStep = 0;
                 renderProgress();
@@ -417,7 +414,5 @@
     renderOptions();
 })();
 </script>
-
-<!-- additional note for clarity: all AMA programs from references [1][3][5] -->
 </body>
 </html>
