@@ -2,417 +2,1045 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
-    <title>AMA · enterprise career profiler</title>
-    <!-- Tailwind via CDN + subtle background / font -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMA University | AI Career Profiler</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome 6 (free icons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        ama: {
+                            blue: '#0066CC',
+                            dark: '#0a0e27',
+                            accent: '#00d4ff',
+                            purple: '#6366f1',
+                            surface: '#111827',
+                            card: '#1f2937'
+                        }
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' },
+                            '100%': { boxShadow: '0 0 40px rgba(0, 212, 255, 0.6)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* smooth transitions, custom radio override */
         body {
-            background: linear-gradient(145deg, #f1f5f9 0%, #e6edf5 100%);
-            font-feature-settings: "ss02";
+            background: #0a0e27;
+            overflow-x: hidden;
+        }
+        .gradient-bg {
+            background: linear-gradient(-45deg, #0a0e27, #1a1f3a, #0f172a, #1e1b4b);
+            background-size: 400% 400%;
+            animation: gradient-x 15s ease infinite;
+        }
+        .glass {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(31, 41, 55, 0.5);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.6);
-            box-shadow: 0 15px 35px -12px rgba(0,20,30,0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
         }
-        .step-pill {
-            transition: all 0.2s ease;
-            background: white;
-            border: 1px solid #e0e7ef;
+        .glass-card:hover {
+            background: rgba(31, 41, 55, 0.8);
+            border-color: rgba(0, 212, 255, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 212, 255, 0.1);
         }
-        .step-pill.active {
-            background: #1e3c5c;
-            border-color: #0f2b40;
-            color: white;
-            box-shadow: 0 6px 14px rgba(20,67,120,0.25);
+        .glass-card.selected {
+            background: rgba(0, 102, 204, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
         }
-        .option-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1.2rem;
-            margin: 0.3rem;
-            background: white;
-            border-radius: 40px;
-            border: 1.5px solid #dde3ea;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #1e293b;
+        .option-card {
             cursor: pointer;
-            transition: all 0.15s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            user-select: none;
+            position: relative;
+            overflow: hidden;
         }
-        .option-chip.selected {
-            background: #1e3c5c;
-            border-color: #1e3c5c;
-            color: white;
-            box-shadow: 0 10px 18px -8px #1e3c5c80;
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
         }
-        .option-chip i {
-            margin-right: 6px;
-            font-size: 0.8rem;
-            opacity: 0.8;
+        .option-card:hover::before {
+            left: 100%;
         }
-        .progress-step {
-            width: 32px;
-            height: 32px;
-            border-radius: 40px;
-            background: white;
-            border: 2px solid #cbd5e1;
-            color: #334155;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
+        .progress-bar {
+            background: linear-gradient(90deg, #0066CC, #00d4ff, #6366f1);
+            background-size: 200% 100%;
+            animation: gradient-x 3s ease infinite;
         }
-        .progress-step.completed {
-            background: #1e3c5c;
-            border-color: #1e3c5c;
-            color: white;
+        .neural-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            height: 1px;
+            opacity: 0.3;
+            animation: pulse-slow 3s ease-in-out infinite;
         }
-        .progress-step.active-step {
-            border-color: #1e3c5c;
-            background: #e9eff8;
-            color: #1e3c5c;
-            font-weight: 700;
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00d4ff;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite;
+        }
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
         .result-card {
-            background: white;
-            border-radius: 24px;
-            padding: 1.8rem 1.5rem;
-            border-left: 6px solid #1e3c5c;
-            box-shadow: 0 20px 35px -10px rgba(0,50,70,0.15);
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        .confidence-bar {
+            background: linear-gradient(90deg, #0066CC, #00d4ff);
+        }
+        .hidden-section {
+            display: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
         }
     </style>
 </head>
-<body class="font-sans antialiased flex items-center justify-center min-h-screen p-4 md:p-6">
-
-<div class="max-w-4xl w-full my-6">
-
-    <!-- HEADER / IDENTITY -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
-        <div>
-            <h1 class="text-3xl md:text-4xl font-light tracking-tight text-[#0b2a41]">
-                <span class="font-bold">⏣ AMA</span> career profiler
-            </h1>
-            <p class="text-[#475569] text-sm flex items-center gap-2 mt-1">
-                <i class="fas fa-microchip text-[#3a5f7a]"></i> LLM–enhanced · multi‑factor analysis
-            </p>
-        </div>
-        <div class="bg-white/70 px-5 py-2 rounded-full shadow-sm text-sm font-medium text-[#0b2a41] border">
-            <i class="far fa-building mr-1"></i> AMA University · PH
-        </div>
-    </div>
-
-    <!-- MAIN APP CARD -->
-    <div class="glass-card rounded-3xl p-5 md:p-8 w-full">
-
-        <!-- STEP 0: user type selector (shs / undergrad) – permanent until results -->
-        <div id="userTypeSection" class="mb-8 border-b border-white/40 pb-6">
-            <div class="text-xs uppercase tracking-wider text-[#4a627a] font-semibold mb-3">i am an incoming</div>
-            <div class="flex flex-wrap gap-4">
-                <label class="flex items-center gap-3 p-3 pr-6 bg-white/60 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#1e3c5c] has-[:checked]:bg-white/90">
-                    <input type="radio" name="userLevel" value="shs" class="w-4 h-4 accent-[#1e3c5c]" checked> 
-                    <span class="font-medium text-gray-800"><i class="fas fa-graduation-cap mr-1"></i>SHS (track)</span>
-                </label>
-                <label class="flex items-center gap-3 p-3 pr-6 bg-white/60 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#1e3c5c] has-[:checked]:bg-white/90">
-                    <input type="radio" name="userLevel" value="undergrad" class="w-4 h-4 accent-[#1e3c5c]"> 
-                    <span class="font-medium text-gray-800"><i class="fas fa-university mr-1"></i>Undergraduate</span>
-                </label>
-            </div>
-            <p class="text-xs text-[#547190] mt-3 ml-1"><i class="far fa-lightbulb"></i> Your answers shape 3 tailored tracks or programs</p>
-        </div>
-
-        <!-- PROGRESS + STEPS (only shown after type selected, but we keep visible) -->
-        <div id="progressArea" class="mb-8">
-            <div class="flex items-center justify-between flex-wrap gap-2 text-sm">
-                <!-- categories will be injected via js but we build static container -->
-                <div id="stepPills" class="flex flex-wrap items-center gap-2"></div>
-                <div class="text-[#1e3c5c] font-mono text-sm bg-white px-3 py-1 rounded-full shadow-sm" id="stepCounter">1/9</div>
-            </div>
-            <!-- active category name -->
-            <div class="mt-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#1e3c5c]"></span>
-                <span id="activeCategory" class="font-semibold text-[#0e2a3d]">Favorite subjects</span>
-            </div>
-        </div>
-
-        <!-- QUESTION CARD (dynamic) -->
-        <div id="questionContainer" class="bg-white/80 rounded-3xl p-5 md:p-7 shadow-sm border border-white/60 mb-6 min-h-[280px] transition-all">
-            <!-- question title + multi-select hint -->
-            <div class="flex justify-between items-start mb-5">
-                <h2 id="questionTitle" class="text-xl font-semibold text-[#132e44] flex items-center gap-2">
-                    <i class="far fa-star"></i> <span>Favorite subjects</span>
-                </h2>
-                <span class="text-xs bg-white px-3 py-1.5 rounded-full text-[#3d637f] font-medium shadow-sm"><i class="far fa-check-circle"></i> multiple allowed</span>
-            </div>
-            <!-- options grid -->
-            <div id="optionsGrid" class="flex flex-wrap gap-2"></div>
-            <!-- small helper -->
-            <p class="text-xs text-gray-500 mt-5 italic"><i class="far fa-message"></i> click all that reflect you — the more you pick, the richer the LLM profile</p>
-        </div>
-
-        <!-- NAVIGATION BUTTONS -->
-        <div class="flex justify-between items-center">
-            <button id="prevBtn" class="px-6 py-3 rounded-full bg-white/70 text-[#2e4d6e] font-medium border hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition shadow-sm"><i class="fas fa-arrow-left mr-2"></i>previous</button>
-            <div class="text-center text-xs text-[#4a6581]">
-                <span id="selectedCountBadge" class="bg-[#dce7f3] px-3 py-1.5 rounded-full font-mono">0 selected</span>
-            </div>
-            <button id="nextBtn" class="px-6 py-3 rounded-full bg-[#1e3c5c] text-white font-medium hover:bg-[#15314d] transition shadow-md">next <i class="fas fa-arrow-right ml-2"></i></button>
-        </div>
-
-        <!-- LLM PROCESS & RESULTS AREA (hidden until finish) -->
-        <div id="resultsArea" class="mt-10 hidden">
-            <div class="relative flex items-center justify-center py-4">
-                <div class="border-t-2 border-white/50 w-full absolute"></div>
-                <span class="bg-white/70 px-5 py-2 rounded-full text-sm z-10 text-[#1e3c5c] font-semibold backdrop-blur-sm"><i class="fas fa-sparkles"></i> LLM synthesis · top recommendations</span>
-            </div>
-            <!-- results cards injected here -->
-            <div id="resultsList" class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4"></div>
-            <div class="flex justify-center mt-6">
-                <button id="restartBtn" class="px-7 py-2.5 rounded-full bg-white/80 border text-[#1d3c5a] font-medium hover:bg-white"><i class="fas fa-rotate-left mr-2"></i>new profile</button>
-            </div>
-        </div>
-
-    </div><!-- end main card -->
-
-    <p class="text-right text-xs text-[#6f8aa5] mt-3"><i class="far fa-brain"></i> contextual analysis · v.AMA‑phi</p>
-</div>
-
-<script>
-(function() {
-    // ------------------------------------------------------------------
-    // 1. AMA PROGRAM DATA (from official pages)
-    const undergradPrograms = [
-        { name: "BS Artificial Intelligence", category: "AI", tags: ["tech","math","analytical","future","coding"] },
-        { name: "BS Information Technology", category: "IT", tags: ["tech","networks","support","web","database"] },
-        { name: "BS Computer Science", category: "CS", tags: ["algorithms","software","theory","math","coding"] },
-        { name: "BS Information Systems", category: "IS", tags: ["business","systems","analyst","data","process"] },
-        { name: "BS Cybersecurity", category: "Sec", tags: ["security","networks","ethics","hacking","defense"] },
-        { name: "BS Data Science", category: "Data", tags: ["math","stats","analytics","python","visualization"] },
-        { name: "BS Blockchain Technology", category: "Blockchain", tags: ["decentralized","crypto","ledger","future"] },
-        { name: "AB Psychology", category: "Psych", tags: ["human","behavior","counseling","research","empathy"] },
-        { name: "BS Psychology", category: "Psych", tags: ["science","research","lab","clinical","empathy"] },
-        { name: "AB English", category: "English", tags: ["writing","literature","communication","creative"] },
-        { name: "AB Political Science", category: "PolSci", tags: ["government","policy","debate","analysis"] },
-        { name: "AB Communication", category: "Comm", tags: ["media","journalism","public relations","creative"] },
-        { name: "AB Economics", category: "Econ", tags: ["math","policy","finance","analytical"] },
-        { name: "BS Social Work", category: "Social", tags: ["helping","community","counseling","advocacy"] },
-        { name: "BS Nursing", category: "Nursing", tags: ["healthcare","helping","science","patient","empathy"] },
-        { name: "BS Marine Transportation", category: "Maritime", tags: ["travel","logistics","navigation","discipline"] },
-        { name: "Practical Nursing", category: "PN", tags: ["healthcare","practical","patient","care"] },
-        { name: "Caregiving NC II", category: "Care", tags: ["elderly","childcare","hands-on","compassion"] }
-    ];
-
-    const shsTracks = [
-        { name: "STEM (Science, Tech, Eng'g, Math)", tags: ["math","science","analytical","research","lab"] },
-        { name: "ABM (Accountancy, Business, Mgmt)", tags: ["business","finance","leadership","economics"] },
-        { name: "HUMSS (Humanities & Social Sci)", tags: ["writing","communication","society","psychology"] },
-        { name: "GAS (General Academic Strand)", tags: ["flexible","diverse","exploration","liberal"] },
-        { name: "TVL-ICT (Programming / Animation)", tags: ["tech","coding","creative","design","hands-on"] },
-        { name: "TVL-HE (Home Economics / Caregiving)", tags: ["hands-on","practical","service","care"] }
-    ];
-
-    // 2. QUESTIONS (9) with short category and multi-answer options
-    const questions = [
-        { category: "fav subjects", text: "Favorite subjects", options: ["Mathematics","Biology","Physics","Chemistry","Computer","English","History","Economics","Art","Music","Foreign language"] },
-        { category: "top skills", text: "Skills you enjoy", options: ["Analytical","Creative","Public speaking","Teamwork","Technical","Leading","Detail-oriented","Helping","Problem-solving"] },
-        { category: "work vibe", text: "Preferred work environment", options: ["Office","Outdoor","Remote","Lab","Collaborative","Independent","Fast-paced","Structured"] },
-        { category: "career path", text: "Ideal career path", options: ["Stable job","High salary","Helping society","Innovation","Creative freedom","Leadership","Global travel"] },
-        { category: "motivation", text: "What motivates you", options: ["Purpose","Recognition","Intellectual challenge","Work-life balance","Money","Impact"] },
-        { category: "learning", text: "How you learn best", options: ["Hands-on","Lectures","Visual","Group study","Self-paced","Mentorship"] },
-        { category: "activities", text: "Extracurriculars", options: ["Sports","Volunteering","Student gov","Arts","Tech club","Writing","Music","Debate"] },
-        { category: "hobbies", text: "Hobbies / interests", options: ["Gaming","Reading","Coding","Building","Photography","Cooking","Travel"] },
-        { category: "personality", text: "Traits you identify with", options: ["Analytical","Empathetic","Organized","Outgoing","Curious","Persistent","Calm"] }
-    ];
-
-    // state
-    let currentStep = 0; // 0-indexed
-    let userType = "shs"; // default
-    // store selected answers per step (array of strings)
-    let selections = Array(questions.length).fill().map(() => []);
-
-    // ------------------------------------------------------------------
-    // DOM elements
-    const userTypeRadios = document.querySelectorAll('input[name="userLevel"]');
-    const stepPillsDiv = document.getElementById('stepPills');
-    const activeCategorySpan = document.getElementById('activeCategory');
-    const questionTitle = document.getElementById('questionTitle');
-    const optionsGrid = document.getElementById('optionsGrid');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const stepCounter = document.getElementById('stepCounter');
-    const selectedCountBadge = document.getElementById('selectedCountBadge');
-    const resultsArea = document.getElementById('resultsArea');
-    const resultsList = document.getElementById('resultsList');
-    const restartBtn = document.getElementById('restartBtn');
-
-    // helper: build pills for steps
-    function renderProgress() {
-        let html = '';
-        questions.forEach((q, idx) => {
-            let cls = 'step-pill ';
-            if (idx === currentStep) cls += 'active ';
-            if (selections[idx].length > 0) cls += ' border-green-400 border-2 bg-green-50';
-            html += `<div class="px-4 py-2 rounded-full text-xs font-medium cursor-pointer transition step-pill ${cls}" data-step="${idx}">${q.category}</div>`;
-        });
-        stepPillsDiv.innerHTML = html;
-        document.querySelectorAll('.step-pill[data-step]').forEach(pill => {
-            pill.addEventListener('click', (e) => {
-                const newStep = parseInt(e.currentTarget.dataset.step);
-                if (!isNaN(newStep)) goToStep(newStep);
-            });
-        });
-        // update active category
-        activeCategorySpan.innerText = questions[currentStep].category;
-        stepCounter.innerText = `${currentStep+1}/${questions.length}`;
-    }
-
-    function renderOptions() {
-        const q = questions[currentStep];
-        questionTitle.innerText = q.text;
-        const selectedSet = new Set(selections[currentStep]);
-        let optionsHtml = '';
-        q.options.forEach(opt => {
-            const isSel = selectedSet.has(opt);
-            optionsHtml += `<div class="option-chip ${isSel ? 'selected' : ''}" data-opt="${opt}"><i class="fa-regular fa-${isSel ? 'circle-check' : 'circle'}"></i> ${opt}</div>`;
-        });
-        optionsGrid.innerHTML = optionsHtml;
-        updateSelectedCount();
-        // attach click listeners
-        document.querySelectorAll('.option-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const opt = chip.dataset.opt;
-                const idx = selections[currentStep].indexOf(opt);
-                if (idx === -1) {
-                    selections[currentStep].push(opt);
-                } else {
-                    selections[currentStep].splice(idx, 1);
-                }
-                renderOptions();  // re-render to reflect selection (simple)
-                renderProgress();  // update step pill style
-            });
-        });
-    }
-
-    function updateSelectedCount() {
-        const count = selections[currentStep].length;
-        selectedCountBadge.innerText = count + ' selected';
-    }
-
-    function goToStep(newStep) {
-        if (newStep >= 0 && newStep < questions.length) {
-            currentStep = newStep;
-            renderProgress();
-            renderOptions();
-        }
-    }
-
-    // recommendation engine (tag overlap simulation)
-    function getRecommendations() {
-        // flatten all selected tags across questions
-        const allSelected = selections.flat().map(s => s.toLowerCase());
-        const programs = userType === 'shs' ? shsTracks : undergradPrograms;
-        const scored = programs.map(p => {
-            let score = 0;
-            p.tags.forEach(tag => {
-                if (allSelected.includes(tag.toLowerCase())) score += 2;
-            });
-            // extra: some option words directly match program name
-            allSelected.forEach(sel => {
-                if (p.name.toLowerCase().includes(sel)) score += 3;
-                if (p.category && p.category.toLowerCase().includes(sel)) score += 2;
-            });
-            return { ...p, score };
-        });
-        scored.sort((a,b) => b.score - a.score);
-        return scored.slice(0,3);
-    }
-
-    // show final results (simulate LLM)
-    function showResults() {
-        const top3 = getRecommendations();
-        let html = '';
-        top3.forEach((item, idx) => {
-            let gradient = 'from-blue-50 to-indigo-50';
-            if (idx===0) gradient = 'from-[#e2ecfe] to-[#dae6f5]';
-            else if (idx===1) gradient = 'from-white to-slate-50';
-            html += `<div class="result-card bg-gradient-to-br ${gradient} p-5 rounded-2xl border border-white/70">
-                <div class="text-xs font-mono text-[#36648b] mb-2">#${idx+1} match</div>
-                <h3 class="text-xl font-bold text-[#1c3d5e] mb-2">${item.name}</h3>
-                <div class="flex flex-wrap gap-1 mt-3">
-                    ${item.tags.map(t => `<span class="px-2 py-0.5 bg-white/70 text-xs rounded-full border">${t}</span>`).join('')}
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-ama-blue to-ama-accent flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-xl tracking-tight">AMA University</h1>
+                        <p class="text-xs text-gray-400">AI Career Profiler</p>
+                    </div>
                 </div>
-                <p class="text-xs text-[#576f87] mt-4 flex items-center"><i class="fas fa-robot mr-1"></i> LLM confidence: ${(idx+1)*31}%</p>
-            </div>`;
-        });
-        resultsList.innerHTML = html;
-    }
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="flex items-center space-x-2 text-sm text-gray-400">
+                        <i class="fas fa-robot text-ama-accent"></i>
+                        <span>Powered by LLM Analysis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    // finish / next logic
-    nextBtn.addEventListener('click', () => {
-        if (currentStep === questions.length - 1) {
-            // last step: process & show results
-            document.getElementById('questionContainer').classList.add('hidden');
-            prevBtn.classList.add('hidden');
-            nextBtn.classList.add('hidden');
-            selectedCountBadge.classList.add('hidden');
-            document.getElementById('progressArea').classList.add('hidden');
-            resultsArea.classList.remove('hidden');
-            showResults();  // now correctly iterates with forEach
-        } else {
-            goToStep(currentStep + 1);
-        }
-    });
+    <!-- Main Content -->
+    <main class="relative z-10 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        
+        <!-- SECTION 1: Welcome / Student Type Selection -->
+        <section id="welcome-section" class="max-w-5xl mx-auto">
+            <div class="text-center mb-12 fade-in">
+                <div class="inline-flex items-center px-4 py-2 rounded-full glass mb-6 border border-ama-accent/30">
+                    <span class="w-2 h-2 rounded-full bg-ama-accent animate-pulse mr-2"></span>
+                    <span class="text-sm text-ama-accent font-medium">Intelligent Career Matching</span>
+                </div>
+                <h2 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                    Discover Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-ama-accent to-ama-purple">Perfect Path</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+                    Our AI analyzes your personality, preferences, and potential to curate the ideal academic journey tailored specifically for you.
+                </p>
+            </div>
 
-    prevBtn.addEventListener('click', () => {
-        if (currentStep > 0) goToStep(currentStep - 1);
-    });
+            <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- SHS Option -->
+                <div onclick="selectStudentType('shs')" class="glass-card rounded-2xl p-8 cursor-pointer group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-ama-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-ama-blue to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-school text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-display text-2xl font-bold mb-3">Senior High School</h3>
+                        <p class="text-gray-400 mb-4">Grade 10 completers exploring academic tracks and technical-vocational strands.</p>
+                        <div class="flex items-center text-ama-accent text-sm font-medium">
+                            <span>Start Assessment</span>
+                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
 
-    // user type change
-    userTypeRadios.forEach(r => {
-        r.addEventListener('change', (e) => {
-            if (confirm("Change level will reset your answers. OK?")) {
-                userType = e.target.value;
-                selections = Array(questions.length).fill().map(() => []);
-                currentStep = 0;
-                renderProgress();
-                renderOptions();
-            } else {
-                // revert radio visually
-                document.querySelector(`input[value="${userType}"]`).checked = true;
+                <!-- Undergrad Option -->
+                <div onclick="selectStudentType('undergrad')" class="glass-card rounded-2xl p-8 cursor-pointer group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-ama-purple/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-ama-purple to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-university text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-display text-2xl font-bold mb-3">Undergraduate</h3>
+                        <p class="text-gray-400 mb-4">SHS graduates and college transferees seeking bachelor's degree programs.</p>
+                        <div class="flex items-center text-ama-accent text-sm font-medium">
+                            <span>Start Assessment</span>
+                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Assessment Questions -->
+        <section id="assessment-section" class="hidden-section max-w-4xl mx-auto">
+            <!-- Progress Header -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="goBack()" class="p-2 rounded-lg glass hover:bg-white/10 transition-colors">
+                            <i class="fas fa-arrow-left text-gray-400"></i>
+                        </button>
+                        <div>
+                            <p class="text-sm text-gray-400">Current Category</p>
+                            <p id="current-category" class="font-display font-semibold text-ama-accent">Academic Foundation</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-400">Progress</p>
+                        <p class="font-display font-bold"><span id="current-step">1</span> / 9</p>
+                    </div>
+                </div>
+                <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="progress-bar h-full rounded-full transition-all duration-500" style="width: 11%"></div>
+                </div>
+            </div>
+
+            <!-- Question Container -->
+            <div id="question-container" class="slide-in">
+                <h3 id="question-text" class="font-display text-3xl font-bold mb-8 text-center">Choose 3 favorite subjects</h3>
+                
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <!-- Options injected by JS -->
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <p class="text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Select all that apply
+                    </p>
+                    <button onclick="nextQuestion()" id="next-btn" class="px-8 py-3 rounded-xl bg-gradient-to-r from-ama-blue to-ama-accent font-semibold text-white hover:shadow-lg hover:shadow-ama-accent/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        Continue
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Processing / LLM Analysis -->
+        <section id="processing-section" class="hidden-section max-w-3xl mx-auto text-center py-20">
+            <div class="relative mb-12">
+                <div class="w-32 h-32 mx-auto rounded-full glass flex items-center justify-center relative">
+                    <div class="absolute inset-0 rounded-full border-2 border-ama-accent/30 animate-ping"></div>
+                    <div class="absolute inset-2 rounded-full border border-ama-accent/50 animate-pulse"></div>
+                    <i class="fas fa-brain text-5xl text-ama-accent animate-pulse"></i>
+                </div>
+                <!-- Orbiting particles -->
+                <div class="absolute top-1/2 left-1/2 w-48 h-48 -translate-x-1/2 -translate-y-1/2">
+                    <div class="absolute w-3 h-3 rounded-full bg-ama-accent top-0 left-1/2 -translate-x-1/2 animate-[spin_4s_linear_infinite]"></div>
+                    <div class="absolute w-2 h-2 rounded-full bg-ama-purple bottom-0 left-1/2 -translate-x-1/2 animate-[spin_6s_linear_infinite_reverse]"></div>
+                </div>
+            </div>
+
+            <h2 class="font-display text-4xl font-bold mb-4">Analyzing Your Profile</h2>
+            <p class="text-gray-400 mb-8">Our AI is processing your responses against AMA University's program database...</p>
+
+            <div class="glass rounded-2xl p-6 text-left max-w-2xl mx-auto mb-8">
+                <div id="processing-logs" class="space-y-2 font-mono text-sm">
+                    <div class="flex items-center text-ama-accent">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span>Analyzing academic preferences...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-ama-accent typing-dot"></div>
+                <div class="w-3 h-3 rounded-full bg-ama-accent typing-dot"></div>
+                <div class="w-3 h-3 rounded-full bg-ama-accent typing-dot"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Results -->
+        <section id="results-section" class="hidden-section max-w-6xl mx-auto">
+            <div class="text-center mb-12 fade-in">
+                <div class="inline-flex items-center px-4 py-2 rounded-full glass mb-6 border border-green-500/30">
+                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                    <span class="text-sm text-green-400 font-medium">Analysis Complete</span>
+                </div>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Your Personalized Recommendations</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Based on your unique profile, our AI has curated the top 3 programs that align with your personality, skills, and aspirations.
+                </p>
+            </div>
+
+            <div id="recommendations-container" class="grid md:grid-cols-3 gap-6 mb-12">
+                <!-- Results injected by JS -->
+            </div>
+
+            <!-- Match Analysis -->
+            <div class="glass rounded-2xl p-8 max-w-4xl mx-auto mb-8">
+                <h3 class="font-display text-2xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-chart-pie text-ama-accent mr-3"></i>
+                    Profile Analysis Summary
+                </h3>
+                <div id="analysis-content" class="grid md:grid-cols-2 gap-6">
+                    <!-- Analysis injected by JS -->
+                </div>
+            </div>
+
+            <div class="text-center space-x-4">
+                <button onclick="restartAssessment()" class="px-6 py-3 rounded-xl glass hover:bg-white/10 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>
+                    Start Over
+                </button>
+                <a href="https://ama.edu.ph/admissions/" target="_blank" class="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-ama-blue to-ama-accent font-semibold text-white hover:shadow-lg hover:shadow-ama-accent/30 transition-all">
+                    <i class="fas fa-external-link-alt mr-2"></i>
+                    Apply Now at AMA
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data Structures
+        const questions = {
+            shs: [
+                {
+                    id: 'subjects',
+                    category: 'Academic Foundation',
+                    question: 'Choose 3 favorite subjects',
+                    options: [
+                        { id: 'math', label: 'Mathematics', icon: 'fa-calculator', desc: 'Problem solving & analysis' },
+                        { id: 'science', label: 'Science', icon: 'fa-flask', desc: 'Research & discovery' },
+                        { id: 'english', label: 'English', icon: 'fa-book', desc: 'Communication & literature' },
+                        { id: 'filipino', label: 'Filipino', icon: 'fa-language', desc: 'Local culture & arts' },
+                        { id: 'ap', label: 'Araling Panlipunan', icon: 'fa-globe-asia', desc: 'History & society' },
+                        { id: 'tle', label: 'TLE / EPP', icon: 'fa-tools', desc: 'Technical skills' },
+                        { id: 'mapeh', label: 'MAPEH', icon: 'fa-palette', desc: 'Arts & physical ed' },
+                        { id: 'ict', label: 'ICT / Computer', icon: 'fa-laptop-code', desc: 'Technology & coding' }
+                    ]
+                },
+                {
+                    id: 'skills',
+                    category: 'Core Strengths',
+                    question: 'Skills you enjoy using',
+                    options: [
+                        { id: 'analytical', label: 'Analytical Thinking', icon: 'fa-brain', desc: 'Logic & problem solving' },
+                        { id: 'creative', label: 'Creativity', icon: 'fa-lightbulb', desc: 'Design & innovation' },
+                        { id: 'communication', label: 'Communication', icon: 'fa-comments', desc: 'Speaking & writing' },
+                        { id: 'technical', label: 'Technical Skills', icon: 'fa-cogs', desc: 'Building & repairing' },
+                        { id: 'leadership', label: 'Leadership', icon: 'fa-users', desc: 'Guiding teams' },
+                        { id: 'artistic', label: 'Artistic Expression', icon: 'fa-paint-brush', desc: 'Visual & performing arts' }
+                    ]
+                },
+                {
+                    id: 'environment',
+                    category: 'Work Environment',
+                    question: 'Preferred work setting',
+                    options: [
+                        { id: 'office', label: 'Corporate Office', icon: 'fa-building', desc: 'Structured environment' },
+                        { id: 'remote', label: 'Remote / Digital', icon: 'fa-laptop-house', desc: 'Work from anywhere' },
+                        { id: 'field', label: 'Field / Outdoor', icon: 'fa-mountain', desc: 'Active & mobile' },
+                        { id: 'lab', label: 'Laboratory', icon: 'fa-microscope', desc: 'Research & testing' },
+                        { id: 'studio', label: 'Studio / Workshop', icon: 'fa-drafting-compass', desc: 'Creative space' },
+                        { id: 'hospital', label: 'Healthcare Setting', icon: 'fa-hospital', desc: 'Helping patients' }
+                    ]
+                },
+                {
+                    id: 'career',
+                    category: 'Career Direction',
+                    question: 'Ideal career path',
+                    options: [
+                        { id: 'business', label: 'Business Leader', icon: 'fa-chart-line', desc: 'CEO / Entrepreneur' },
+                        { id: 'tech', label: 'Tech Innovator', icon: 'fa-microchip', desc: 'Developer / Engineer' },
+                        { id: 'healthcare', label: 'Healthcare Pro', icon: 'fa-user-md', desc: 'Doctor / Nurse' },
+                        { id: 'artist', label: 'Creative Artist', icon: 'fa-camera', desc: 'Designer / Creator' },
+                        { id: 'educator', label: 'Educator', icon: 'fa-chalkboard-teacher', desc: 'Teacher / Trainer' },
+                        { id: 'public', label: 'Public Service', icon: 'fa-landmark', desc: 'Government / Law' }
+                    ]
+                },
+                {
+                    id: 'motivation',
+                    category: 'Drive & Passion',
+                    question: 'What motivates you',
+                    options: [
+                        { id: 'money', label: 'Financial Success', icon: 'fa-coins', desc: 'High earning potential' },
+                        { id: 'helping', label: 'Helping Others', icon: 'fa-hands-helping', desc: 'Making a difference' },
+                        { id: 'innovation', label: 'Innovation', icon: 'fa-rocket', desc: 'Creating new things' },
+                        { id: 'stability', label: 'Job Security', icon: 'fa-shield-alt', desc: 'Stable career' },
+                        { id: 'recognition', label: 'Recognition', icon: 'fa-trophy', desc: 'Awards & fame' },
+                        { id: 'freedom', label: 'Independence', icon: 'fa-dove', desc: 'Be your own boss' }
+                    ]
+                },
+                {
+                    id: 'learning',
+                    category: 'Learning Style',
+                    question: 'How you learn best',
+                    options: [
+                        { id: 'hands', label: 'Hands-on Practice', icon: 'fa-hand-sparkles', desc: 'Learning by doing' },
+                        { id: 'visual', label: 'Visual Learning', icon: 'fa-eye', desc: 'Images & diagrams' },
+                        { id: 'reading', label: 'Reading & Research', icon: 'fa-book-open', desc: 'Books & articles' },
+                        { id: 'group', label: 'Group Study', icon: 'fa-user-friends', desc: 'Collaborative learning' },
+                        { id: 'online', label: 'Online / Digital', icon: 'fa-wifi', desc: 'E-learning platforms' }
+                    ]
+                },
+                {
+                    id: 'activities',
+                    category: 'Extracurriculars',
+                    question: 'Activities involved in',
+                    options: [
+                        { id: 'sports', label: 'Sports Teams', icon: 'fa-running', desc: 'Athletics & fitness' },
+                        { id: 'arts', label: 'Arts Club', icon: 'fa-theater-masks', desc: 'Performing arts' },
+                        { id: 'stem', label: 'Science / Robotics', icon: 'fa-robot', desc: 'Tech competitions' },
+                        { id: 'student_gov', label: 'Student Government', icon: 'fa-vote-yea', desc: 'Leadership roles' },
+                        { id: 'volunteer', label: 'Volunteer Work', icon: 'fa-heart', desc: 'Community service' },
+                        { id: 'business_club', label: 'Business Club', icon: 'fa-briefcase', desc: 'Entrepreneurship' }
+                    ]
+                },
+                {
+                    id: 'hobbies',
+                    category: 'Personal Interests',
+                    question: 'Hobbies & interests',
+                    options: [
+                        { id: 'gaming', label: 'Gaming', icon: 'fa-gamepad', desc: 'Video & mobile games' },
+                        { id: 'coding', label: 'Coding / Programming', icon: 'fa-code', desc: 'Building software' },
+                        { id: 'writing', label: 'Writing / Blogging', icon: 'fa-pen-nib', desc: 'Content creation' },
+                        { id: 'photography', label: 'Photography', icon: 'fa-camera-retro', desc: 'Visual storytelling' },
+                        { id: 'cooking', label: 'Cooking / Baking', icon: 'fa-utensils', desc: 'Culinary arts' },
+                        { id: 'music', label: 'Music / Dance', icon: 'fa-music', desc: 'Performing arts' },
+                        { id: 'sports_hobby', label: 'Sports / Fitness', icon: 'fa-dumbbell', desc: 'Physical activities' },
+                        { id: 'reading', label: 'Reading', icon: 'fa-book-reader', desc: 'Books & novels' }
+                    ]
+                },
+                {
+                    id: 'personality',
+                    category: 'Character Traits',
+                    question: 'Traits you identify with',
+                    options: [
+                        { id: 'introvert', label: 'Introvert', icon: 'fa-user', desc: 'Independent worker' },
+                        { id: 'extrovert', label: 'Extrovert', icon: 'fa-users', desc: 'Team player' },
+                        { id: 'organized', label: 'Organized', icon: 'fa-tasks', desc: 'Detail-oriented' },
+                        { id: 'spontaneous', label: 'Spontaneous', icon: 'fa-random', desc: 'Flexible & adaptive' },
+                        { id: 'ambitious', label: 'Ambitious', icon: 'fa-mountain', desc: 'Goal-driven' },
+                        { id: 'empathetic', label: 'Empathetic', icon: 'fa-hand-holding-heart', desc: 'People-focused' }
+                    ]
+                }
+            ],
+            undergrad: [
+                {
+                    id: 'subjects',
+                    category: 'Academic Foundation',
+                    question: 'Choose 3 favorite subjects',
+                    options: [
+                        { id: 'programming', label: 'Programming', icon: 'fa-code', desc: 'Software development' },
+                        { id: 'math', label: 'Advanced Math', icon: 'fa-square-root-alt', desc: 'Calculus & analysis' },
+                        { id: 'science', label: 'Natural Sciences', icon: 'fa-atom', desc: 'Physics, Chem, Bio' },
+                        { id: 'business', label: 'Business Studies', icon: 'fa-chart-pie', desc: 'Management & econ' },
+                        { id: 'psychology', label: 'Psychology', icon: 'fa-brain', desc: 'Human behavior' },
+                        { id: 'communication', label: 'Communication', icon: 'fa-bullhorn', desc: 'Media & PR' },
+                        { id: 'arts', label: 'Arts & Design', icon: 'fa-palette', desc: 'Creative subjects' },
+                        { id: 'engineering', label: 'Engineering', icon: 'fa-cogs', desc: 'Applied sciences' }
+                    ]
+                },
+                {
+                    id: 'skills',
+                    category: 'Core Strengths',
+                    question: 'Skills you enjoy using',
+                    options: [
+                        { id: 'coding', label: 'Coding & Development', icon: 'fa-laptop-code', desc: 'Building applications' },
+                        { id: 'analysis', label: 'Data Analysis', icon: 'fa-chart-bar', desc: 'Insights & patterns' },
+                        { id: 'design', label: 'UI/UX Design', icon: 'fa-pencil-ruler', desc: 'User experience' },
+                        { id: 'management', label: 'Project Management', icon: 'fa-tasks', desc: 'Leading projects' },
+                        { id: 'research', label: 'Research', icon: 'fa-search', desc: 'Investigation' },
+                        { id: 'networking', label: 'Networking', icon: 'fa-network-wired', desc: 'Systems & security' }
+                    ]
+                },
+                {
+                    id: 'environment',
+                    category: 'Work Environment',
+                    question: 'Preferred work setting',
+                    options: [
+                        { id: 'tech_company', label: 'Tech Company', icon: 'fa-building', desc: 'Startup or corporate' },
+                        { id: 'freelance', label: 'Freelance / Remote', icon: 'fa-coffee', desc: 'Independent work' },
+                        { id: 'government', label: 'Government', icon: 'fa-landmark', desc: 'Public sector' },
+                        { id: 'healthcare', label: 'Healthcare', icon: 'fa-hospital', desc: 'Medical institutions' },
+                        { id: 'education', label: 'Academe', icon: 'fa-university', desc: 'Schools & research' },
+                        { id: 'agency', label: 'Creative Agency', icon: 'fa-ad', desc: 'Marketing & media' }
+                    ]
+                },
+                {
+                    id: 'career',
+                    category: 'Career Direction',
+                    question: 'Ideal career path',
+                    options: [
+                        { id: 'software_dev', label: 'Software Developer', icon: 'fa-code', desc: 'App & system dev' },
+                        { id: 'data_scientist', label: 'Data Scientist', icon: 'fa-database', desc: 'AI & analytics' },
+                        { id: 'cybersecurity', label: 'Cybersecurity Expert', icon: 'fa-shield-alt', desc: 'Security analyst' },
+                        { id: 'business_analyst', label: 'Business Analyst', icon: 'fa-chart-line', desc: 'Strategy & ops' },
+                        { id: 'entrepreneur', label: 'Entrepreneur', icon: 'fa-rocket', desc: 'Start your own' },
+                        { id: 'educator', label: 'Professor / Teacher', icon: 'fa-chalkboard-teacher', desc: 'Education' }
+                    ]
+                },
+                {
+                    id: 'motivation',
+                    category: 'Drive & Passion',
+                    question: 'What motivates you',
+                    options: [
+                        { id: 'salary', label: 'High Salary', icon: 'fa-money-bill-wave', desc: 'Financial growth' },
+                        { id: 'impact', label: 'Social Impact', icon: 'fa-globe', desc: 'Changing lives' },
+                        { id: 'innovation', label: 'Innovation', icon: 'fa-lightbulb', desc: 'New technologies' },
+                        { id: 'work_life', label: 'Work-Life Balance', icon: 'fa-balance-scale', desc: 'Flexibility' },
+                        { id: 'growth', label: 'Career Growth', icon: 'fa-arrow-up', desc: 'Advancement' },
+                        { id: 'security', label: 'Job Security', icon: 'fa-lock', desc: 'Stability' }
+                    ]
+                },
+                {
+                    id: 'learning',
+                    category: 'Learning Style',
+                    question: 'How you learn best',
+                    options: [
+                        { id: 'practical', label: 'Practical Projects', icon: 'fa-project-diagram', desc: 'Hands-on coding' },
+                        { id: 'theory', label: 'Theoretical Study', icon: 'fa-book', desc: 'Concepts first' },
+                        { id: 'internship', label: 'Internships', icon: 'fa-briefcase', desc: 'Work experience' },
+                        { id: 'research', label: 'Research-based', icon: 'fa-microscope', desc: 'Deep dive study' },
+                        { id: 'collaborative', label: 'Team Projects', icon: 'fa-users-cog', desc: 'Group work' }
+                    ]
+                },
+                {
+                    id: 'activities',
+                    category: 'Extracurriculars',
+                    question: 'Activities involved in',
+                    options: [
+                        { id: 'orgs', label: 'Student Organizations', icon: 'fa-sitemap', desc: 'Leadership roles' },
+                        { id: 'hackathons', label: 'Hackathons', icon: 'fa-laptop-code', desc: 'Coding comps' },
+                        { id: 'sports', label: 'Varsity Sports', icon: 'fa-trophy', desc: 'Athletics' },
+                        { id: 'volunteer', label: 'Volunteer Work', icon: 'fa-hand-holding-heart', desc: 'Community' },
+                        { id: 'part_time', label: 'Part-time Job', icon: 'fa-store', desc: 'Work experience' },
+                        { id: 'research', label: 'Research Projects', icon: 'fa-flask', desc: 'Academic research' }
+                    ]
+                },
+                {
+                    id: 'hobbies',
+                    category: 'Personal Interests',
+                    question: 'Hobbies & interests',
+                    options: [
+                        { id: 'tech_news', label: 'Tech News', icon: 'fa-newspaper', desc: 'Following trends' },
+                        { id: 'gaming', label: 'Esports / Gaming', icon: 'fa-gamepad', desc: 'Competitive gaming' },
+                        { id: 'content', label: 'Content Creation', icon: 'fa-video', desc: 'YouTube / TikTok' },
+                        { id: 'investing', label: 'Investing', icon: 'fa-chart-line', desc: 'Stocks / Crypto' },
+                        { id: 'fitness', label: 'Fitness', icon: 'fa-heartbeat', desc: 'Health & wellness' },
+                        { id: 'travel', label: 'Travel', icon: 'fa-plane', desc: 'Exploring places' }
+                    ]
+                },
+                {
+                    id: 'personality',
+                    category: 'Character Traits',
+                    question: 'Traits you identify with',
+                    options: [
+                        { id: 'analytical', label: 'Analytical', icon: 'fa-brain', desc: 'Logic-driven' },
+                        { id: 'creative', label: 'Creative', icon: 'fa-paint-brush', desc: 'Idea generator' },
+                        { id: 'driven', label: 'Driven', icon: 'fa-fire', desc: 'Highly motivated' },
+                        { id: 'collaborative', label: 'Collaborative', icon: 'fa-handshake', desc: 'Team player' },
+                        { id: 'detail', label: 'Detail-Oriented', icon: 'fa-search', desc: 'Precision focused' },
+                        { id: 'adaptable', label: 'Adaptable', icon: 'fa-sync', desc: 'Quick learner' }
+                    ]
+                }
+            ]
+        };
+
+        const shsPrograms = {
+            'STEM': {
+                name: 'STEM Strand',
+                full: 'Science, Technology, Engineering, and Mathematics',
+                desc: 'For students interested in engineering, medicine, architecture, and technology. Heavy focus on sciences and mathematics.',
+                careers: ['Engineer', 'Doctor', 'Architect', 'Scientist', 'IT Professional'],
+                match: ['math', 'science', 'analytical', 'technical', 'lab', 'tech', 'innovation', 'hands', 'stem', 'coding', 'introvert', 'organized']
+            },
+            'ABM': {
+                name: 'ABM Strand',
+                full: 'Accountancy, Business and Management',
+                desc: 'Prepares students for business, finance, and entrepreneurship. Focus on economics, accounting, and management principles.',
+                careers: ['Accountant', 'Business Manager', 'Entrepreneur', 'Financial Analyst', 'Marketing Professional'],
+                match: ['business', 'management', 'money', 'leadership', 'office', 'business_club', 'extrovert', 'ambitious', 'organized']
+            },
+            'HUMSS': {
+                name: 'HUMSS Strand',
+                full: 'Humanities and Social Sciences',
+                desc: 'Ideal for students pursuing law, education, psychology, and social sciences. Develops critical thinking and communication skills.',
+                careers: ['Lawyer', 'Teacher', 'Psychologist', 'Journalist', 'Public Servant'],
+                match: ['english', 'ap', 'communication', 'helping', 'public', 'educator', 'writing', 'student_gov', 'volunteer', 'extrovert', 'empathetic']
+            },
+            'GAS': {
+                name: 'GAS Strand',
+                full: 'General Academic Strand',
+                desc: 'Flexible strand allowing exploration of various fields. Perfect for undecided students who want to keep options open.',
+                careers: ['Various - depends on chosen electives', 'Generalist roles', 'Administrative positions'],
+                match: ['spontaneous', 'freedom', 'group', 'reading', 'multiple interests']
+            },
+            'TVL-ICT': {
+                name: 'TVL - ICT',
+                full: 'Information and Communications Technology',
+                desc: 'Technical-vocational track focused on computer programming, animation, and tech skills. Leads to immediate employment or further studies.',
+                careers: ['Computer Technician', 'Programmer', 'Web Developer', 'BPO Professional', 'Graphic Designer'],
+                match: ['ict', 'technical', 'remote', 'gaming', 'coding', 'hands', 'introvert', 'organized']
+            },
+            'TVL-HE': {
+                name: 'TVL - Home Economics',
+                full: 'Home Economics Strand',
+                desc: 'Focuses on hospitality, tourism, culinary arts, and care-giving services. Practical skills for service industries.',
+                careers: ['Chef', 'Hotel Manager', 'Tourism Professional', 'Caregiver', 'Flight Attendant'],
+                match: ['tle', 'cooking', 'helping', 'field', 'hospitality', 'empathetic', 'extrovert']
+            },
+            'Arts': {
+                name: 'Arts and Design',
+                full: 'Arts and Design Track',
+                desc: 'For creatively inclined students pursuing media arts, visual arts, dance, music, and theater. Talent-based assessment required.',
+                careers: ['Graphic Designer', 'Performer', 'Multimedia Artist', 'Photographer', 'Interior Designer'],
+                match: ['mapeh', 'creative', 'artistic', 'studio', 'artist', 'photography', 'music', 'arts', 'spontaneous', 'creative']
+            },
+            'Sports': {
+                name: 'Sports Track',
+                full: 'Sports, Fitness and Recreation',
+                desc: 'Designed for athletically gifted students pursuing careers in sports science, coaching, and fitness management.',
+                careers: ['Athlete', 'Coach', 'Fitness Trainer', 'Sports Manager', 'Physical Therapist'],
+                match: ['sports', 'sports_hobby', 'field', 'fitness', 'extrovert', 'ambitious']
             }
-        });
-    });
+        };
 
-    // restart button
-    restartBtn.addEventListener('click', () => {
-        selections = Array(questions.length).fill().map(() => []);
-        currentStep = 0;
-        userType = "shs";
-        document.querySelector('input[value="shs"]').checked = true;
-        // show containers again
-        document.getElementById('questionContainer').classList.remove('hidden');
-        prevBtn.classList.remove('hidden');
-        nextBtn.classList.remove('hidden');
-        selectedCountBadge.classList.remove('hidden');
-        document.getElementById('progressArea').classList.remove('hidden');
-        resultsArea.classList.add('hidden');
-        renderProgress();
-        renderOptions();
-    });
+        const undergradPrograms = {
+            'BS Artificial Intelligence': {
+                name: 'BS Artificial Intelligence',
+                desc: 'Comprehensive program covering machine learning, NLP, and generative AI. Prepares students for the forefront of tech innovation.',
+                careers: ['AI Specialist', 'Machine Learning Engineer', 'Data Scientist', 'NLP Scientist', 'Prompt Engineer'],
+                match: ['programming', 'coding', 'analysis', 'innovation', 'tech_company', 'data_scientist', 'practical', 'tech_news', 'analytical', 'driven']
+            },
+            'BS Computer Science': {
+                name: 'BS Computer Science',
+                desc: 'Strong foundation in computing, algorithms, and software development. Industry-aligned internships and capstone projects.',
+                careers: ['Software Engineer', 'Systems Analyst', 'Web Developer', 'R&D Professional', 'Quality Assurance Specialist'],
+                match: ['programming', 'coding', 'analysis', 'software_dev', 'practical', 'hackathons', 'tech_news', 'analytical', 'detail']
+            },
+            'BS Information Technology': {
+                name: 'BS Information Technology',
+                desc: 'Focuses on IT infrastructure, network administration, and system integration. Practical, hands-on technical training.',
+                careers: ['System Administrator', 'Network Engineer', 'IT Security Admin', 'Technical Support Specialist', 'IT Auditor'],
+                match: ['programming', 'networking', 'technical', 'tech_company', 'practical', 'orgs', 'analytical', 'adaptable']
+            },
+            'BS Cybersecurity': {
+                name: 'BS Cybersecurity',
+                desc: 'Comprehensive security program covering ethical hacking, digital forensics, and security governance. High-demand field.',
+                careers: ['Cybersecurity Analyst', 'Penetration Tester', 'Security Officer', 'Malware Analyst', 'Cloud Security Analyst'],
+                match: ['programming', 'networking', 'cybersecurity', 'security', 'tech_company', 'detail', 'analytical', 'driven']
+            },
+            'BS Data Science': {
+                name: 'BS Data Science',
+                desc: 'Technical and analytical skills for data-driven industries. Covers ML algorithms, statistical modeling, and visualization.',
+                careers: ['Data Scientist', 'Machine Learning Engineer', 'Data Engineer', 'Business Analyst', 'Data Architect'],
+                match: ['math', 'analysis', 'data_scientist', 'research', 'salary', 'growth', 'analytical', 'detail', 'driven']
+            },
+            'BS Business Administration - Marketing': {
+                name: 'BSBA - Marketing Management',
+                desc: 'Blend of marketing theory and practicum. Covers market research, advertising, branding, and digital marketing.',
+                careers: ['Marketing Manager', 'Brand Manager', 'Digital Marketing Specialist', 'Market Research Analyst', 'PR Specialist'],
+                match: ['business', 'communication', 'design', 'agency', 'entrepreneur', 'impact', 'content', 'creative', 'collaborative']
+            },
+            'BS Business Administration - MIS': {
+                name: 'BSBA - Management Information Systems',
+                desc: 'Bridge between business and IT. Learn to design and manage information systems that drive business efficiency.',
+                careers: ['Business Systems Analyst', 'IT Project Manager', 'Database Administrator', 'Management Consultant', 'Data Analyst'],
+                match: ['business', 'coding', 'management', 'analysis', 'tech_company', 'business_analyst', 'practical', 'analytical']
+            },
+            'BS Accountancy': {
+                name: 'BS Accountancy',
+                desc: 'Prepares students for the CPA licensure exam. Strong foundation in financial accounting, auditing, and taxation.',
+                careers: ['Certified Public Accountant', 'Auditor', 'Financial Analyst', 'Tax Consultant', 'Comptroller'],
+                match: ['math', 'business', 'management', 'security', 'organized', 'detail', 'analytical', 'driven']
+            },
+            'BS Psychology': {
+                name: 'BS Psychology',
+                desc: 'Scientific study of human behavior and mental processes. Preparation for clinical practice, HR, or further studies.',
+                careers: ['HR Practitioner', 'Psychometrician', 'Researcher', 'Counselor', 'Training Specialist'],
+                match: ['psychology', 'communication', 'healthcare', 'educator', 'helping', 'volunteer', 'empathetic', 'collaborative']
+            },
+            'AB Communication': {
+                name: 'AB Communication',
+                desc: 'Comprehensive program in journalism, broadcasting, advertising, and public relations. Media-rich curriculum.',
+                careers: ['Journalist', 'Broadcast Producer', 'PR Practitioner', 'Social Media Manager', 'Content Strategist'],
+                match: ['communication', 'design', 'agency', 'content', 'content', 'creative', 'extrovert', 'adaptable']
+            },
+            'BS Computer Engineering': {
+                name: 'BS Computer Engineering',
+                desc: 'Integration of computer science and electrical engineering. Hardware and software systems design.',
+                careers: ['Computer Engineer', 'Hardware Engineer', 'Embedded Systems Developer', 'Network Architect', 'Systems Engineer'],
+                match: ['engineering', 'programming', 'technical', 'software_dev', 'practical', 'analytical', 'detail', 'driven']
+            },
+            'BS Entertainment and Multimedia Computing': {
+                name: 'BS Entertainment and Multimedia Computing',
+                desc: 'Focus on animation, game development, and interactive media. Creative and technical combined.',
+                careers: ['Game Developer', 'Animator', 'Multimedia Content Creator', 'VFX Artist', 'UI/UX Designer'],
+                match: ['arts', 'design', 'creative', 'gaming', 'content', 'creative', 'adaptable', 'spontaneous']
+            }
+        };
 
-    // initialization
-    renderProgress();
-    renderOptions();
-})();
-</script>
+        // State Management
+        let currentState = {
+            studentType: null,
+            currentQuestion: 0,
+            answers: {},
+            selectedOptions: []
+        };
+
+        // Initialize
+        function init() {
+            createParticles();
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        function selectStudentType(type) {
+            currentState.studentType = type;
+            currentState.currentQuestion = 0;
+            currentState.answers = {};
+            currentState.selectedOptions = [];
+            
+            document.getElementById('welcome-section').classList.add('hidden-section');
+            document.getElementById('assessment-section').classList.remove('hidden-section');
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const questionsList = questions[currentState.studentType];
+            const question = questionsList[currentState.currentQuestion];
+            
+            document.getElementById('current-category').textContent = question.category;
+            document.getElementById('current-step').textContent = currentState.currentQuestion + 1;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const progress = ((currentState.currentQuestion + 1) / questionsList.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            currentState.selectedOptions = currentState.answers[question.id] || [];
+            
+            question.options.forEach(option => {
+                const card = document.createElement('div');
+                const isSelected = currentState.selectedOptions.includes(option.id);
+                
+                card.className = `glass-card option-card rounded-xl p-5 ${isSelected ? 'selected' : ''}`;
+                card.onclick = () => toggleOption(option.id);
+                
+                card.innerHTML = `
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg ${isSelected ? 'bg-ama-accent' : 'bg-white/10'} flex items-center justify-center flex-shrink-0 transition-colors">
+                            <i class="fas ${option.icon} ${isSelected ? 'text-ama-dark' : 'text-ama-accent'} text-lg"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white mb-1">${option.label}</h4>
+                            <p class="text-sm text-gray-400">${option.desc}</p>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border-2 ${isSelected ? 'border-ama-accent bg-ama-accent' : 'border-gray-600'} flex items-center justify-center flex-shrink-0">
+                            ${isSelected ? '<i class="fas fa-check text-ama-dark text-xs"></i>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+            
+            updateNextButton();
+        }
+
+        function toggleOption(optionId) {
+            const index = currentState.selectedOptions.indexOf(optionId);
+            if (index > -1) {
+                currentState.selectedOptions.splice(index, 1);
+            } else {
+                currentState.selectedOptions.push(optionId);
+            }
+            
+            const questionsList = questions[currentState.studentType];
+            const question = questionsList[currentState.currentQuestion];
+            currentState.answers[question.id] = currentState.selectedOptions;
+            
+            renderQuestion();
+        }
+
+        function updateNextButton() {
+            const btn = document.getElementById('next-btn');
+            btn.disabled = currentState.selectedOptions.length === 0;
+        }
+
+        function nextQuestion() {
+            const questionsList = questions[currentState.studentType];
+            
+            if (currentState.currentQuestion < questionsList.length - 1) {
+                currentState.currentQuestion++;
+                
+                const container = document.getElementById('question-container');
+                container.classList.remove('slide-in');
+                void container.offsetWidth; // Trigger reflow
+                container.classList.add('slide-in');
+                
+                renderQuestion();
+            } else {
+                showProcessing();
+            }
+        }
+
+        function goBack() {
+            if (currentState.currentQuestion > 0) {
+                currentState.currentQuestion--;
+                renderQuestion();
+            } else {
+                document.getElementById('assessment-section').classList.add('hidden-section');
+                document.getElementById('welcome-section').classList.remove('hidden-section');
+            }
+        }
+
+        function showProcessing() {
+            document.getElementById('assessment-section').classList.add('hidden-section');
+            document.getElementById('processing-section').classList.remove('hidden-section');
+            
+            const logs = [
+                'Analyzing academic preferences...',
+                'Processing skill compatibility matrix...',
+                'Cross-referencing with AMA program database...',
+                'Calculating personality-trait alignment...',
+                'Generating confidence scores...',
+                'Curating top 3 recommendations...'
+            ];
+            
+            const logContainer = document.getElementById('processing-logs');
+            let i = 0;
+            
+            const interval = setInterval(() => {
+                if (i < logs.length) {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center text-ama-accent fade-in';
+                    div.innerHTML = `<i class="fas fa-check-circle mr-2"></i><span>${logs[i]}</span>`;
+                    logContainer.appendChild(div);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(showResults, 1500);
+                }
+            }, 800);
+        }
+
+        function calculateMatches() {
+            const answers = currentState.answers;
+            const allSelections = Object.values(answers).flat();
+            const programs = currentState.studentType === 'shs' ? shsPrograms : undergradPrograms;
+            
+            const matches = Object.entries(programs).map(([key, program]) => {
+                let score = 0;
+                program.match.forEach(tag => {
+                    if (allSelections.includes(tag)) score += 1;
+                });
+                
+                // Calculate confidence percentage
+                const confidence = Math.min(95, Math.round((score / Math.max(program.match.length * 0.6, 1)) * 100));
+                
+                return { key, ...program, score, confidence };
+            });
+            
+            return matches.sort((a, b) => b.score - a.score).slice(0, 3);
+        }
+
+        function showResults() {
+            document.getElementById('processing-section').classList.add('hidden-section');
+            document.getElementById('results-section').classList.remove('hidden-section');
+            
+            const topMatches = calculateMatches();
+            const container = document.getElementById('recommendations-container');
+            container.innerHTML = '';
+            
+            topMatches.forEach((match, index) => {
+                const card = document.createElement('div');
+                card.className = 'result-card rounded-2xl p-6 relative overflow-hidden fade-in';
+                card.style.animationDelay = `${index * 0.2}s`;
+                
+                const rankColor = index === 0 ? 'from-yellow-400 to-orange-500' : 
+                                 index === 1 ? 'from-gray-300 to-gray-400' : 
+                                 'from-amber-600 to-amber-700';
+                
+                const rankIcon = index === 0 ? 'fa-crown' : 
+                                index === 1 ? 'fa-medal' : 
+                                'fa-award';
+                
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${rankColor} opacity-20 rounded-bl-full"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${rankColor} flex items-center justify-center">
+                                <i class="fas ${rankIcon} text-white text-xl"></i>
+                            </div>
+                            <span class="text-3xl font-display font-bold text-white">#${index + 1}</span>
+                        </div>
+                        
+                        <h3 class="font-display text-xl font-bold mb-2">${match.name}</h3>
+                        ${match.full ? `<p class="text-sm text-ama-accent mb-3">${match.full}</p>` : ''}
+                        <p class="text-gray-400 text-sm mb-4">${match.desc}</p>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-400">Match Confidence</span>
+                                <span class="font-semibold text-ama-accent">${match.confidence}%</span>
+                            </div>
+                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="confidence-bar h-full rounded-full" style="width: ${match.confidence}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Career Opportunities</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${match.careers.slice(0, 3).map(career => 
+                                    `<span class="px-3 py-1 rounded-full glass text-xs text-gray-300">${career}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Generate analysis summary
+            const analysisDiv = document.getElementById('analysis-content');
+            const personalityTraits = currentState.answers['personality'] || [];
+            const topSkills = currentState.answers['skills'] || [];
+            
+            analysisDiv.innerHTML = `
+                <div class="space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <h4 class="font-semibold text-ama-accent mb-2 flex items-center">
+                            <i class="fas fa-user-circle mr-2"></i> Dominant Traits
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${personalityTraits.map(trait => 
+                                `<span class="px-3 py-1 rounded-lg bg-ama-blue/20 text-sm text-ama-accent border border-ama-blue/30">${trait}</span>`
+                            ).join('') || '<span class="text-gray-500 text-sm">No specific traits selected</span>'}
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4">
+                        <h4 class="font-semibold text-ama-accent mb-2 flex items-center">
+                            <i class="fas fa-bolt mr-2"></i> Key Strengths
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${topSkills.map(skill => 
+                                `<span class="px-3 py-1 rounded-lg bg-ama-purple/20 text-sm text-ama-purple border border-ama-purple/30">${skill}</span>`
+                            ).join('') || '<span class="text-gray-500 text-sm">No specific skills selected</span>'}
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <h4 class="font-semibold text-ama-accent mb-2 flex items-center">
+                            <i class="fas fa-brain mr-2"></i> AI Analysis
+                        </h4>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Based on your responses, you show strong alignment with ${topMatches[0].name}. 
+                            Your profile indicates a preference for ${personalityTraits.includes('analytical') || personalityTraits.includes('introvert') ? 'structured, analytical work environments' : 'dynamic, people-oriented settings'}. 
+                            The recommended programs offer optimal pathways to careers matching your ${topSkills.includes('coding') || topSkills.includes('technical') ? 'technical capabilities' : 'stated interests'}.
+                        </p>
+                    </div>
+                    <div class="glass rounded-xl p-4">
+                        <h4 class="font-semibold text-ama-accent mb-2 flex items-center">
+                            <i class="fas fa-lightbulb mr-2"></i> Recommendation
+                        </h4>
+                        <p class="text-sm text-gray-400">
+                            Consider visiting AMA University for a campus tour to experience the ${topMatches[0].name} facilities firsthand. 
+                            Speak with faculty members and current students to validate your interest.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function restartAssessment() {
+            currentState = {
+                studentType: null,
+                currentQuestion: 0,
+                answers: {},
+                selectedOptions: []
+            };
+            
+            document.getElementById('results-section').classList.add('hidden-section');
+            document.getElementById('welcome-section').classList.remove('hidden-section');
+        }
+
+        // Start
+        init();
+    </script>
 </body>
 </html>
