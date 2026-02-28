@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>AMA · enterprise career profiler</title>
+    <!-- Tailwind via CDN + subtle background / font -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* smooth transitions, custom radio override */
+        body {
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6edf5 100%);
+            font-feature-settings: "ss02";
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 15px 35px -12px rgba(0,20,30,0.25);
+        }
+        .step-pill {
+            transition: all 0.2s ease;
+            background: white;
+            border: 1px solid #e0e7ef;
+        }
+        .step-pill.active {
+            background: #1e3c5c;
+            border-color: #0f2b40;
+            color: white;
+            box-shadow: 0 6px 14px rgba(20,67,120,0.25);
+        }
+        .option-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1.2rem;
+            margin: 0.3rem;
+            background: white;
+            border-radius: 40px;
+            border: 1.5px solid #dde3ea;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            user-select: none;
+        }
+        .option-chip.selected {
+            background: #1e3c5c;
+            border-color: #1e3c5c;
+            color: white;
+            box-shadow: 0 10px 18px -8px #1e3c5c80;
+        }
+        .option-chip i {
+            margin-right: 6px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .progress-step {
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            color: #334155;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        .progress-step.completed {
+            background: #1e3c5c;
+            border-color: #1e3c5c;
+            color: white;
+        }
+        .progress-step.active-step {
+            border-color: #1e3c5c;
+            background: #e9eff8;
+            color: #1e3c5c;
+            font-weight: 700;
+        }
+        .result-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.8rem 1.5rem;
+            border-left: 6px solid #1e3c5c;
+            box-shadow: 0 20px 35px -10px rgba(0,50,70,0.15);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased flex items-center justify-center min-h-screen p-4 md:p-6">
+
+<div class="max-w-4xl w-full my-6">
+
+    <!-- HEADER / IDENTITY -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-light tracking-tight text-[#0b2a41]">
+                <span class="font-bold">⏣ AMA</span> career profiler
+            </h1>
+            <p class="text-[#475569] text-sm flex items-center gap-2 mt-1">
+                <i class="fas fa-microchip text-[#3a5f7a]"></i> LLM–enhanced · multi‑factor analysis
+            </p>
+        </div>
+        <div class="bg-white/70 px-5 py-2 rounded-full shadow-sm text-sm font-medium text-[#0b2a41] border">
+            <i class="far fa-building mr-1"></i> AMA University · PH
+        </div>
+    </div>
+
+    <!-- MAIN APP CARD -->
+    <div class="glass-card rounded-3xl p-5 md:p-8 w-full">
+
+        <!-- STEP 0: user type selector (shs / undergrad) – permanent until results -->
+        <div id="userTypeSection" class="mb-8 border-b border-white/40 pb-6">
+            <div class="text-xs uppercase tracking-wider text-[#4a627a] font-semibold mb-3">i am an incoming</div>
+            <div class="flex flex-wrap gap-4">
+                <label class="flex items-center gap-3 p-3 pr-6 bg-white/60 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#1e3c5c] has-[:checked]:bg-white/90">
+                    <input type="radio" name="userLevel" value="shs" class="w-4 h-4 accent-[#1e3c5c]" checked> 
+                    <span class="font-medium text-gray-800"><i class="fas fa-graduation-cap mr-1"></i>SHS (track)</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 pr-6 bg-white/60 rounded-2xl border-2 cursor-pointer transition-all has-[:checked]:border-[#1e3c5c] has-[:checked]:bg-white/90">
+                    <input type="radio" name="userLevel" value="undergrad" class="w-4 h-4 accent-[#1e3c5c]"> 
+                    <span class="font-medium text-gray-800"><i class="fas fa-university mr-1"></i>Undergraduate</span>
+                </label>
+            </div>
+            <p class="text-xs text-[#547190] mt-3 ml-1"><i class="far fa-lightbulb"></i> Your answers shape 3 tailored tracks or programs</p>
+        </div>
+
+        <!-- PROGRESS + STEPS (only shown after type selected, but we keep visible) -->
+        <div id="progressArea" class="mb-8">
+            <div class="flex items-center justify-between flex-wrap gap-2 text-sm">
+                <!-- categories will be injected via js but we build static container -->
+                <div id="stepPills" class="flex flex-wrap items-center gap-2"></div>
+                <div class="text-[#1e3c5c] font-mono text-sm bg-white px-3 py-1 rounded-full shadow-sm" id="stepCounter">1/9</div>
+            </div>
+            <!-- active category name -->
+            <div class="mt-3 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#1e3c5c]"></span>
+                <span id="activeCategory" class="font-semibold text-[#0e2a3d]">Favorite subjects</span>
+            </div>
+        </div>
+
+        <!-- QUESTION CARD (dynamic) -->
+        <div id="questionContainer" class="bg-white/80 rounded-3xl p-5 md:p-7 shadow-sm border border-white/60 mb-6 min-h-[280px] transition-all">
+            <!-- question title + multi-select hint -->
+            <div class="flex justify-between items-start mb-5">
+                <h2 id="questionTitle" class="text-xl font-semibold text-[#132e44] flex items-center gap-2">
+                    <i class="far fa-star"></i> <span>Favorite subjects</span>
+                </h2>
+                <span class="text-xs bg-white px-3 py-1.5 rounded-full text-[#3d637f] font-medium shadow-sm"><i class="far fa-check-circle"></i> multiple allowed</span>
+            </div>
+            <!-- options grid -->
+            <div id="optionsGrid" class="flex flex-wrap gap-2"></div>
+            <!-- small helper -->
+            <p class="text-xs text-gray-500 mt-5 italic"><i class="far fa-message"></i> click all that reflect you — the more you pick, the richer the LLM profile</p>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div class="flex justify-between items-center">
+            <button id="prevBtn" class="px-6 py-3 rounded-full bg-white/70 text-[#2e4d6e] font-medium border hover:bg-white disabled:opacity-30 disabled:pointer-events-none transition shadow-sm"><i class="fas fa-arrow-left mr-2"></i>previous</button>
+            <div class="text-center text-xs text-[#4a6581]">
+                <span id="selectedCountBadge" class="bg-[#dce7f3] px-3 py-1.5 rounded-full font-mono">0 selected</span>
+            </div>
+            <button id="nextBtn" class="px-6 py-3 rounded-full bg-[#1e3c5c] text-white font-medium hover:bg-[#15314d] transition shadow-md">next <i class="fas fa-arrow-right ml-2"></i></button>
+        </div>
+
+        <!-- LLM PROCESS & RESULTS AREA (hidden until finish) -->
+        <div id="resultsArea" class="mt-10 hidden">
+            <div class="relative flex items-center justify-center py-4">
+                <div class="border-t-2 border-white/50 w-full absolute"></div>
+                <span class="bg-white/70 px-5 py-2 rounded-full text-sm z-10 text-[#1e3c5c] font-semibold backdrop-blur-sm"><i class="fas fa-sparkles"></i> LLM synthesis · top recommendations</span>
+            </div>
+            <!-- results cards injected here -->
+            <div id="resultsList" class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4"></div>
+            <div class="flex justify-center mt-6">
+                <button id="restartBtn" class="px-7 py-2.5 rounded-full bg-white/80 border text-[#1d3c5a] font-medium hover:bg-white"><i class="fas fa-rotate-left mr-2"></i>new profile</button>
+            </div>
+        </div>
+
+    </div><!-- end main card -->
+
+    <p class="text-right text-xs text-[#6f8aa5] mt-3"><i class="far fa-brain"></i> contextual analysis · v.AMA‑phi</p>
+</div>
+
+<script>
+(function() {
+    // ------------------------------------------------------------------
+    // 1. AMA PROGRAM DATA (from official pages [1][3][5])
+    const undergradPrograms = [
+        { name: "BS Artificial Intelligence", category: "AI", tags: ["tech","math","analytical","future","coding"] },
+        { name: "BS Information Technology", category: "IT", tags: ["tech","networks","support","web","database"] },
+        { name: "BS Computer Science", category: "CS", tags: ["algorithms","software","theory","math","coding"] },
+        { name: "BS Information Systems", category: "IS", tags: ["business","systems","analyst","data","process"] },
+        { name: "BS Cybersecurity", category: "Sec", tags: ["security","networks","ethics","hacking","defense"] },
+        { name: "BS Data Science", category: "Data", tags: ["math","stats","analytics","python","visualization"] },
+        { name: "BS Blockchain Technology", category: "Blockchain", tags: ["decentralized","crypto","ledger","future"] },
+        { name: "AB Psychology", category: "Psych", tags: ["human","behavior","counseling","research","empathy"] },
+        { name: "BS Psychology", category: "Psych", tags: ["science","research","lab","clinical","empathy"] },
+        { name: "AB English", category: "English", tags: ["writing","literature","communication","creative"] },
+        { name: "AB Political Science", category: "PolSci", tags: ["government","policy","debate","analysis"] },
+        { name: "AB Communication", category: "Comm", tags: ["media","journalism","public relations","creative"] },
+        { name: "AB Economics", category: "Econ", tags: ["math","policy","finance","analytical"] },
+        { name: "BS Social Work", category: "Social", tags: ["helping","community","counseling","advocacy"] },
+        { name: "BS Nursing", category: "Nursing", tags: ["healthcare","helping","science","patient","empathy"] },
+        { name: "BS Marine Transportation", category: "Maritime", tags: ["travel","logistics","navigation","discipline"] },
+        { name: "Practical Nursing", category: "PN", tags: ["healthcare","practical","patient","care"] },
+        { name: "Caregiving NC II", category: "Care", tags: ["elderly","childcare","hands-on","compassion"] }
+    ];
+
+    const shsTracks = [
+        { name: "STEM (Science, Tech, Eng'g, Math)", tags: ["math","science","analytical","research","lab"] },
+        { name: "ABM (Accountancy, Business, Mgmt)", tags: ["business","finance","leadership","economics"] },
+        { name: "HUMSS (Humanities & Social Sci)", tags: ["writing","communication","society","psychology"] },
+        { name: "GAS (General Academic Strand)", tags: ["flexible","diverse","exploration","liberal"] },
+        { name: "TVL-ICT (Programming / Animation)", tags: ["tech","coding","creative","design","hands-on"] },
+        { name: "TVL-HE (Home Economics / Caregiving)", tags: ["hands-on","practical","service","care"] }
+    ];
+
+    // 2. QUESTIONS (9) with short category and multi-answer options
+    const questions = [
+        { category: "fav subjects", text: "Favorite subjects", options: ["Mathematics","Biology","Physics","Chemistry","Computer","English","History","Economics","Art","Music","Foreign language"] },
+        { category: "top skills", text: "Skills you enjoy", options: ["Analytical","Creative","Public speaking","Teamwork","Technical","Leading","Detail-oriented","Helping","Problem-solving"] },
+        { category: "work vibe", text: "Preferred work environment", options: ["Office","Outdoor","Remote","Lab","Collaborative","Independent","Fast-paced","Structured"] },
+        { category: "career path", text: "Ideal career path", options: ["Stable job","High salary","Helping society","Innovation","Creative freedom","Leadership","Global travel"] },
+        { category: "motivation", text: "What motivates you", options: ["Purpose","Recognition","Intellectual challenge","Work-life balance","Money","Impact"] },
+        { category: "learning", text: "How you learn best", options: ["Hands-on","Lectures","Visual","Group study","Self-paced","Mentorship"] },
+        { category: "activities", text: "Extracurriculars", options: ["Sports","Volunteering","Student gov","Arts","Tech club","Writing","Music","Debate"] },
+        { category: "hobbies", text: "Hobbies / interests", options: ["Gaming","Reading","Coding","Building","Photography","Cooking","Travel"] },
+        { category: "personality", text: "Traits you identify with", options: ["Analytical","Empathetic","Organized","Outgoing","Curious","Persistent","Calm"] }
+    ];
+
+    // state
+    let currentStep = 0; // 0-indexed
+    let userType = "shs"; // default
+    // store selected answers per step (array of strings)
+    let selections = Array(questions.length).fill().map(() => []);
+
+    // ------------------------------------------------------------------
+    // DOM elements
+    const userTypeRadios = document.querySelectorAll('input[name="userLevel"]');
+    const stepPillsDiv = document.getElementById('stepPills');
+    const activeCategorySpan = document.getElementById('activeCategory');
+    const questionTitle = document.getElementById('questionTitle');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const stepCounter = document.getElementById('stepCounter');
+    const selectedCountBadge = document.getElementById('selectedCountBadge');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsList = document.getElementById('resultsList');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // helper: build pills for steps
+    function renderProgress() {
+        let html = '';
+        questions.forEach((q, idx) => {
+            let cls = 'step-pill ';
+            if (idx === currentStep) cls += 'active ';
+            if (selections[idx].length > 0) cls += ' border-green-400 border-2 bg-green-50';
+            html += `<div class="px-4 py-2 rounded-full text-xs font-medium cursor-pointer transition step-pill ${cls}" data-step="${idx}">${q.category}</div>`;
+        });
+        stepPillsDiv.innerHTML = html;
+        document.querySelectorAll('.step-pill[data-step]').forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                const newStep = parseInt(e.currentTarget.dataset.step);
+                if (!isNaN(newStep)) goToStep(newStep);
+            });
+        });
+        // update active category
+        activeCategorySpan.innerText = questions[currentStep].category;
+        stepCounter.innerText = `${currentStep+1}/${questions.length}`;
+    }
+
+    function renderOptions() {
+        const q = questions[currentStep];
+        questionTitle.innerText = q.text;
+        const selectedSet = new Set(selections[currentStep]);
+        let optionsHtml = '';
+        q.options.forEach(opt => {
+            const isSel = selectedSet.has(opt);
+            optionsHtml += `<div class="option-chip ${isSel ? 'selected' : ''}" data-opt="${opt}"><i class="fa-regular fa-${isSel ? 'circle-check' : 'circle'}"></i> ${opt}</div>`;
+        });
+        optionsGrid.innerHTML = optionsHtml;
+        updateSelectedCount();
+        // attach click listeners
+        document.querySelectorAll('.option-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const opt = chip.dataset.opt;
+                const idx = selections[currentStep].indexOf(opt);
+                if (idx === -1) {
+                    selections[currentStep].push(opt);
+                } else {
+                    selections[currentStep].splice(idx, 1);
+                }
+                renderOptions();  // re-render to reflect selection (simple)
+                renderProgress();  // update step pill style
+            });
+        });
+    }
+
+    function updateSelectedCount() {
+        const count = selections[currentStep].length;
+        selectedCountBadge.innerText = count + ' selected';
+    }
+
+    function goToStep(newStep) {
+        if (newStep >= 0 && newStep < questions.length) {
+            currentStep = newStep;
+            renderProgress();
+            renderOptions();
+        }
+    }
+
+    // recommendation engine (very basic tag overlap)
+    function getRecommendations() {
+        // flatten all selected tags across questions
+        const allSelected = selections.flat().map(s => s.toLowerCase());
+        // also use for simple mapping
+        const programs = userType === 'shs' ? shsTracks : undergradPrograms;
+        const scored = programs.map(p => {
+            let score = 0;
+            p.tags.forEach(tag => {
+                if (allSelected.includes(tag.toLowerCase())) score += 2;
+                // also check if program name / tags partially match any selected word
+            });
+            // extra: some option words directly match program name
+            allSelected.forEach(sel => {
+                if (p.name.toLowerCase().includes(sel)) score += 3;
+                if (p.category.toLowerCase().includes(sel)) score += 2;
+            });
+            return { ...p, score };
+        });
+        scored.sort((a,b) => b.score - a.score);
+        return scored.slice(0,3);
+    }
+
+    // show final results (simulate LLM)
+    function showResults() {
+        const top3 = getRecommendations();
+        let html = '';
+        top3((item, idx) => {
+            let gradient = 'from-blue-50 to-indigo-50';
+            if (idx===0) gradient = 'from-[#e2ecfe] to-[#dae6f5]';
+            else if (idx===1) gradient = 'from-white to-slate-50';
+            html += `<div class="result-card bg-gradient-to-br ${gradient} p-5 rounded-2xl border border-white/70">
+                <div class="text-xs font-mono text-[#36648b] mb-2">#${idx+1} match</div>
+                <h3 class="text-xl font-bold text-[#1c3d5e] mb-2">${item.name}</h3>
+                <div class="flex flex-wrap gap-1 mt-3">
+                    ${item.tags.map(t => `<span class="px-2 py-0.5 bg-white/70 text-xs rounded-full border">${t}</span>`).join('')}
+                </div>
+                <p class="text-xs text-[#576f87] mt-4 flex items-center"><i class="fas fa-robot mr-1"></i> LLM confidence: ${(idx+1)*31}%</p>
+            </div>`;
+        });
+        resultsList.innerHTML = html;
+    }
+
+    // finish / next logic
+    nextBtn.addEventListener('click', () => {
+        if (currentStep === questions.length - 1) {
+            // last step: process & show results
+            document.getElementById('questionContainer').classList.add('hidden');
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            selectedCountBadge.classList.add('hidden');
+            document.getElementById('progressArea').classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+            showResults();
+        } else {
+            goToStep(currentStep + 1);
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) goToStep(currentStep - 1);
+    });
+
+    // user type change
+    userTypeRadios.forEach(r => {
+        r.addEventListener('change', (e) => {
+            userType = e.target.value;
+            // reset all selections (optional fresh start)
+            if (confirm("Change level will reset your answers. OK?")) {
+                selections = Array(questions.length).fill().map(() => []);
+                currentStep = 0;
+                renderProgress();
+                renderOptions();
+            } else {
+                // revert radio visually
+                document.querySelector(`input[value="${userType}"]`).checked = true;
+            }
+        });
+    });
+
+    // restart button
+    restartBtn.addEventListener('click', () => {
+        selections = Array(questions.length).fill().map(() => []);
+        currentStep = 0;
+        userType = "shs";
+        document.querySelector('input[value="shs"]').checked = true;
+        // show containers again
+        document.getElementById('questionContainer').classList.remove('hidden');
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+        selectedCountBadge.classList.remove('hidden');
+        document.getElementById('progressArea').classList.remove('hidden');
+        resultsArea.classList.add('hidden');
+        renderProgress();
+        renderOptions();
+    });
+
+    // initialization
+    renderProgress();
+    renderOptions();
+})();
+</script>
+
+<!-- additional note for clarity: all AMA programs from references [1][3][5] -->
+</body>
+</html>
